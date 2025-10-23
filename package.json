@@ -1,0 +1,16 @@
+{
+  "name": "dsgn-web-builder",
+  "version": "1.0.0",
+  "description": "DSGN LABS AI Web Builder",
+  "scripts": {
+    "dev": "wrangler pages dev . --kv SITE_STORAGE --r2 WEBSITE_FILES",
+    "deploy": "wrangler pages deploy ."
+  },
+  "dependencies": {
+    "stripe": "^14.0.0",
+    "jszip": "^3.10.1"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
