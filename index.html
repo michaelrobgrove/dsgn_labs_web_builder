@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSGN LABS Web Builder</title>
+    <link rel="stylesheet" href="https://convert.yourdsgn.pro/dsgn-style.css">
+    <style>
+        body { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .hidden { display: none; }
+        .logo { width: 150px; margin-bottom: 20px; }
+        
+        /* Form Section */
+        #form-section { max-width: 600px; margin: 0 auto; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        
+        /* Chat Section */
+        #chat-section { display: flex; gap: 20px; margin-top: 30px; }
+        #chat-container { flex: 1; max-width: 500px; }
+        #chat-messages { border: 1px solid #ddd; border-radius: 4px; height: 400px; overflow-y: auto; padding: 15px; margin-bottom: 10px; background: #f9f9f9; }
+        .message { margin-bottom: 15px; padding: 10px; border-radius: 4px; }
+        .message.danny { background: #e3f2fd; }
+        .message.user { background: #f5f5f5; text-align: right; }
+        .message strong { display: block; margin-bottom: 5px; }
+        #chat-input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        
+        /* Preview Section */
+        #preview-container { flex: 2; }
+        #preview-frame { width: 100%; height: 600px; border: 1px solid #ddd; border-radius: 4px; background: white; }
+        
+        /* Buttons */
+        button { padding: 12px 24px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #1976D2; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        
+        .loading { opacity: 0.6; pointer-events: none; }
+        .error { color: red; margin-top: 10px; }
+        .success { color: green; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <img src="/DSGN.png" alt="DSGN LABS" class="logo">
+    <h1>DSGN LABS Web Builder</h1>
+    <p>Build your professional website with Danny, our AI expert</p>
+
+    <!-- Initial Form -->
+    <div id="form-section">
+        <div class="form-group">
+            <label for="businessName">Business Name *</label>
+            <input type="text" id="businessName" required>
+        </div>
+        <div class="form-group">
+            <label for="tagline">Tagline *</label>
+            <input type="text" id="tagline" placeholder="Your business in one sentence" required>
+        </div>
+        <div class="form-group">
+            <label for="logoFile">Logo File (optional)</label>
+            <input type="file" id="logoFile" accept="image/*">
+        </div>
+        <div class="form-group">
+            <label for="primaryColor">Primary Color *</label>
+            <input type="color" id="primaryColor" value="#2196F3">
+        </div>
+        <div class="form-group">
+            <label for="secondaryColor">Secondary Color *</label>
+            <input type="color" id="secondaryColor" value="#FF5722">
+        </div>
+        <div class="form-group">
+            <label for="description">Business Description *</label>
+            <textarea id="description" placeholder="Tell us about your business, services, and what makes you unique" required></textarea>
+        </div>
+        <button id="start-btn" onclick="startBuilding()">Start Building with Danny</button>
+        <div id="form-error" class="error"></div>
+    </div>
+
+    <!-- Chat & Preview Section -->
+    <div id="chat-section" class="hidden">
+        <div id="chat-container">
+            <h3>Chat with Danny</h3>
+            <div id="chat-messages"></div>
+            <input type="text" id="chat-input" placeholder="Type your response..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <button onclick="sendMessage()" style="margin-top: 10px; width: 100%;">Send</button>
+            <div id="chat-error" class="error"></div>
+        </div>
+        
+        <div id="preview-container">
+            <h3>Preview</h3>
+            <iframe id="preview-frame"></iframe>
+            <button id="approve-btn" onclick="approveDesign()" style="margin-top: 10px; width: 100%;">I Love It! Ready to Publish</button>
+        </div>
+    </div>
+
+    <!-- Payment Section -->
+    <div id="payment-section" class="hidden">
+        <h2>Almost There!</h2>
+        <p>The design process with me is always free. When you're ready to go live, you can download all the website files and get free lifetime hosting for a one-time payment of $50.</p>
+        <button id="payment-btn" onclick="initiatePayment()">Proceed with Payment ($50)</button>
+        <div id="payment-status"></div>
+    </div>
+
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        let sessionData = {
+            businessName: '',
+            tagline: '',
+            logo: null,
+            primaryColor: '',
+            secondaryColor: '',
+            description: '',
+            conversationHistory: [],
+            generatedSite: null,
+            siteVersion: 0
+        };
+
+        async function startBuilding() {
+            const businessName = document.getElementById('businessName').value.trim();
+            const tagline = document.getElementById('tagline').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const primaryColor = document.getElementById('primaryColor').value;
+            const secondaryColor = document.getElementById('secondaryColor').value;
+            const logoFile = document.getElementById('logoFile').files[0];
+
+            if (!businessName || !tagline || !description) {
+                document.getElementById('form-error').textContent = 'Please fill in all required fields';
+                return;
+            }
+
+            document.getElementById('start-btn').disabled = true;
+            document.getElementById('start-btn').textContent = 'Starting...';
+
+            // Convert logo to base64 if provided
+            if (logoFile) {
+                sessionData.logo = await fileToBase64(logoFile);
+            }
+
+            sessionData.businessName = businessName;
+            sessionData.tagline = tagline;
+            sessionData.primaryColor = primaryColor;
+            sessionData.secondaryColor = secondaryColor;
+            sessionData.description = description;
+
+            // Hide form, show chat
+            document.getElementById('form-section').classList.add('hidden');
+            document.getElementById('chat-section').classList.remove('hidden');
+
+            // Initialize conversation with Danny
+            await initializeConversation();
+        }
+
+        async function initializeConversation() {
+            const initialPrompt = `Business Name: ${sessionData.businessName}
+Industry/Type: Based on description
+Tagline: ${sessionData.tagline}
+Colors: Primary ${sessionData.primaryColor}, Secondary ${sessionData.secondaryColor}
+Logo: ${sessionData.logo ? 'Provided' : 'Not provided'}
+Description: ${sessionData.description}`;
+
+            addMessage('user', initialPrompt);
+            await callDanny('START', initialPrompt);
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            input.value = '';
+            addMessage('user', message);
+            await callDanny('CHAT', message);
+        }
+
+        async function callDanny(type, message) {
+            try {
+                document.getElementById('chat-messages').classList.add('loading');
+                
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type,
+                        message,
+                        sessionData
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) throw new Error(data.error || 'Failed to communicate with Danny');
+
+                addMessage('danny', data.response);
+                sessionData.conversationHistory = data.conversationHistory;
+
+                // If site was generated, update preview
+                if (data.siteHTML) {
+                    sessionData.generatedSite = data.siteHTML;
+                    sessionData.siteVersion++;
+                    updatePreview(data.siteHTML);
+                }
+
+            } catch (error) {
+                document.getElementById('chat-error').textContent = error.message;
+            } finally {
+                document.getElementById('chat-messages').classList.remove('loading');
+            }
+        }
+
+        function addMessage(sender, text) {
+            const messagesDiv = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = `<strong>${sender === 'danny' ? 'Danny' : 'You'}:</strong>${text.replace(/\n/g, '<br>')}`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function updatePreview(html) {
+            const iframe = document.getElementById('preview-frame');
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            
+            iframeDoc.open();
+            iframeDoc.write(html);
+            iframeDoc.close();
+
+            // Disable right-click and inspect
+            iframe.contentWindow.document.addEventListener('contextmenu', e => e.preventDefault());
+            iframe.contentWindow.document.addEventListener('keydown', e => {
+                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        async function approveDesign() {
+            document.getElementById('chat-section').classList.add('hidden');
+            document.getElementById('payment-section').classList.remove('hidden');
+        }
+
+        async function initiatePayment() {
+            try {
+                document.getElementById('payment-btn').disabled = true;
+                document.getElementById('payment-status').innerHTML = '<p>Redirecting to secure payment...</p>';
+
+                const response = await fetch('/api/create-checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        businessName: sessionData.businessName,
+                        siteHTML: sessionData.generatedSite
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) throw new Error(data.error || 'Payment initialization failed');
+
+                // Redirect to Stripe
+                const stripe = Stripe(data.publishableKey);
+                await stripe.redirectToCheckout({ sessionId: data.sessionId });
+
+            } catch (error) {
+                document.getElementById('payment-status').innerHTML = `<p class="error">${error.message}</p>`;
+                document.getElementById('payment-btn').disabled = false;
+            }
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+    </script>
+</body>
+</html>
