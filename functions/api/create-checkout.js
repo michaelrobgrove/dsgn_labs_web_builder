@@ -5,9 +5,9 @@ import Stripe from 'stripe';
 export async function onRequestPost(context) {
     try {
         const { request, env } = context;
-        const { businessName, siteHTML } = await request.json();
+        const { email, businessName, siteHTML, wantHosting } = await request.json();
 
-        if (!businessName || !siteHTML) {
+        if (!email || !businessName || !siteHTML) {
             throw new Error('Missing required data');
         }
 
@@ -16,12 +16,13 @@ export async function onRequestPost(context) {
         // Create checkout session
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
+            customer_email: email,
             line_items: [{
                 price_data: {
                     currency: 'usd',
                     product_data: {
                         name: 'Website Download + Lifetime Hosting',
-                        description: `For ${businessName}`,
+                        description: `For ${businessName} - ${wantHosting ? 'Includes free lifetime hosting' : 'Self-hosting option'}`,
                     },
                     unit_amount: 5000, // $50.00
                 },
@@ -32,6 +33,8 @@ export async function onRequestPost(context) {
             cancel_url: `${new URL(request.url).origin}`,
             metadata: {
                 businessName,
+                email,
+                wantHosting: wantHosting.toString(),
                 siteHTML: siteHTML.substring(0, 500) // Stripe metadata limit
             }
         });
@@ -45,10 +48,13 @@ export async function onRequestPost(context) {
         await env.SITE_STORAGE.put(
             `pending/${session.id}.json`,
             JSON.stringify({
+                email,
                 businessName,
                 siteHTML,
                 fileName,
-                timestamp: Date.now()
+                wantHosting,
+                timestamp: Date.now(),
+                expiresAt: Date.now() + (3 * 24 * 60 * 60 * 1000) // 3 days from now
             }),
             {
                 expirationTtl: 3600 // 1 hour expiration for pending payments
