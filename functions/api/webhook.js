@@ -11,10 +11,10 @@ export async function onRequestPost(context) {
         const signature = request.headers.get('stripe-signature');
         const body = await request.text();
 
-        // Verify webhook signature
+        // Verify webhook signature (ASYNC for Cloudflare Workers)
         let event;
         try {
-            event = stripe.webhooks.constructEvent(
+            event = await stripe.webhooks.constructEventAsync(
                 body,
                 signature,
                 env.STRIPE_WEBHOOK_SECRET
