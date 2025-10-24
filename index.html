@@ -3,345 +3,521 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DSGN LABS Web Builder - AI-Powered Website Creation in Minutes</title>
-    <meta name="description" content="Create a professional website with AI in minutes. Chat with Danny, our AI expert, get instant previews, and launch your site with lifetime hosting for just $50.">
+    <title>DSGN LABS - AI Website Builder | Create Professional Sites in Minutes</title>
+    <meta name="description" content="Build stunning websites with AI assistance. Chat with Danny, preview in real-time, and launch your professional site with lifetime hosting for just $50.">
     <link rel="stylesheet" href="https://convert.yourdsgn.pro/dsgn-style.css">
     <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 0; }
-        
-        /* Header Section */
-.header-section {
-    color: white;
-    height: 100vh; 
-    /* FIX 1: Changed path to /DSGN_grey_back.jpg
-      This tells the browser to find the image starting from your website's root folder.
-    */
-    background: linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)), url('./DSGN_grey_back.png');
-    background-size: cover;
-    background-position: center;
-    /* --- LAYOUT FIX --- */
-    display: flex;
-    flex-direction: column; /* This stacks your items (logo, text, button) vertically */
-    justify-content: center; /* This centers the stack vertically */
-    align-items: center;     /* This centers the stack horizontally */
-    text-align: center; /* Ensures text inside the items is also centered */
-    padding: 20px; 
-}
-        .logo { 
-            max-width: 600px; 
-            width: 100%;
-            height: auto;
-            margin: 0 auto 30px;
-            display: block;
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        }
-        .header-section h1 { 
-            font-size: 48px; 
-            margin: 0 0 20px; 
-            font-weight: 700;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 1);
-        }
-        .header-section .subtitle { 
-            font-size: 24px; 
-            margin: 0 0 30px; 
-            opacity: 0.95;
-        }
-        .cta-button {
-            display: inline-block;
-            padding: 18px 40px;
-            background: white;
-            color: #000000;
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 20px;
-            font-weight: 600;
-            transition: transform 0.2s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --bg-dark: #0a0a0a;
+            --bg-card: #111111;
+            --bg-elevated: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --border: #27272a;
+            --accent: #22d3ee;
+            --success: #10b981;
+            --price: 0.50; /* CHANGE THIS TO 50 FOR PRODUCTION */
         }
 
-        /* Content Section */
-        .content-wrapper {
-            max-width: 1200px;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav-content {
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 60px 20px;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .content-section {
-            margin-bottom: 60px;
+
+        .logo-nav {
+            height: 40px;
+            filter: brightness(1.2);
         }
-        .content-section h2 {
-            font-size: 36px;
-            color: #fff;
-            margin-bottom: 20px;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
         }
-        .content-section h3 {
-            font-size: 24px;
-            color: #ffffff;
-            margin: 30px 0 15px;
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.95rem;
         }
-        .content-section p {
-            font-size: 18px;
-            line-height: 1.8;
-            color: #eeeeee;
-            margin-bottom: 20px;
+
+        .nav-links a:hover {
+            color: var(--text-primary);
         }
+
+        .nav-cta {
+            background: var(--primary);
+            color: white;
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .nav-cta:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 6rem 2rem 4rem;
+            background: radial-gradient(ellipse at top, rgba(99, 102, 241, 0.15), transparent 50%);
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .hero-badge span {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #ffffff, #a1a1aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2vw, 1.4rem);
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            animation: fadeInUp 0.6s ease-out 0.4s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.6s ease-out 0.6s both;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 50px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card);
+            border-color: var(--primary);
+        }
+
+        /* Feature Grid */
+        .features {
+            padding: 6rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-label {
+            color: var(--primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            margin-bottom: 1rem;
+        }
+
+        .section-description {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
         .feature-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin: 40px 0;
+            gap: 2rem;
         }
+
         .feature-card {
-            background: #f9f9f9;
-            padding: 30px;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s;
         }
-        .feature-card h3 {
-            margin-top: 0;
-            color: #667eea;
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
         }
-        .pricing-box {
-            background: linear-gradient(rgba(0, 0, 0, 0.50), rgba(0, 0, 0, 0.50)), url('./DSGN_blue_back.png');
-            color: white;
-            padding: 40px;
-            background-position: center;
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
             border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Pricing Section */
+        .pricing {
+            padding: 6rem 2rem;
+            background: var(--bg-elevated);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pricing-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: var(--bg-card);
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .pricing-header {
             text-align: center;
-            margin: 40px 0;
+            margin-bottom: 2rem;
         }
-        .pricing-box .price {
-            font-size: 72px;
+
+        .price {
+            font-size: 4rem;
             font-weight: 700;
-            margin: 20px 0;
+            color: var(--primary);
+            margin: 1rem 0;
         }
-        .pricing-box ul {
+
+        .price-description {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .pricing-features {
             list-style: none;
-            padding: 0;
-            text-align: left;
-            max-width: 500px;
-            margin: 30px auto;
+            margin: 2rem 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
         }
-        .pricing-box li {
-            padding: 10px 0;
-            font-size: 18px;
+
+        .pricing-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+            color: var(--text-secondary);
         }
-        .pricing-box li:before {
-            content: "✓ ";
+
+        .pricing-features li::before {
+            content: "✓";
+            color: var(--success);
             font-weight: bold;
-            margin-right: 10px;
+            font-size: 1.2rem;
         }
 
         /* Form Section */
-        #form-section { 
-            max-width: 1000px; 
-            margin: 60px auto; 
-            padding: 40px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        .form-section {
+            padding: 6rem 2rem;
+            max-width: 900px;
+            margin: 0 auto;
         }
-        #form-section h2 {
-            text-align: center;
-            color: #667eea;
-            margin-bottom: 30px;
+
+        .form-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 3rem;
         }
-        .form-group { 
-            margin-bottom: 25px; 
+
+        .form-group {
+            margin-bottom: 1.5rem;
         }
-        .form-group label { 
-            display: block; 
-            margin-bottom: 8px; 
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
             font-weight: 600;
-            color: #000;
-            font-size: 16px;
+            color: var(--text-primary);
         }
-        .form-group input[type="text"],
-        .form-group input[type="email"],
-        .form-group textarea { 
-            width: 100%; 
-            padding: 14px; 
-            border: 2px solid #ddd; 
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.9rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s;
         }
+
         .form-group input:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
-        .form-group input[type="color"] {
-            width: 100%;
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        input[type="color"] {
             height: 60px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
             cursor: pointer;
         }
-        .form-group input[type="file"] {
-            width: 100%;
-            padding: 10px;
-            border: 2px dashed #ddd;
-            border-radius: 8px;
+
+        input[type="file"] {
+            padding: 1.5rem;
+            border: 2px dashed var(--border);
             cursor: pointer;
         }
-        .form-group textarea { 
-            min-height: 120px; 
-            resize: vertical; 
-        }
+
         .checkbox-group {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 0.8rem;
         }
+
         .checkbox-group input[type="checkbox"] {
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             cursor: pointer;
         }
-        .checkbox-group label {
-            margin: 0;
-            cursor: pointer;
-        }
-        
-        /* Hidden class */
-        .hidden { 
-            display: none !important; 
-        }
-        
+
         /* Chat Section */
-        #chat-section { 
-            display: flex; 
-            gap: 30px; 
-            margin-top: 40px;
+        .chat-section {
+            display: flex;
+            gap: 2rem;
             max-width: 1400px;
-            margin-left: auto;
-            margin-right: auto;
-            padding: 20px;
+            margin: 0 auto;
+            padding: 2rem;
         }
-        #chat-container { 
-            flex: 1; 
-            max-width: 600px; 
+
+        .chat-container {
+            flex: 1;
+            max-width: 600px;
         }
-        #chat-messages { 
-            border: 2px solid #ddd; 
-            border-radius: 12px; 
-            height: 500px; 
-            overflow-y: auto; 
-            padding: 20px; 
-            margin-bottom: 15px; 
-            background: #f9f9f9; 
+
+        .chat-messages {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            height: 500px;
+            overflow-y: auto;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
         }
-        .message { 
-            margin-bottom: 20px; 
-            padding: 15px; 
-            border-radius: 8px; 
-            color: #fff !important; 
-            line-height: 1.6;
+
+        .message {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border-radius: 12px;
+            animation: fadeIn 0.3s;
         }
-        .message.danny { 
-            background: #626262; 
-            border-left: 4px solid #2196F3;
+
+        .message.danny {
+            background: var(--bg-elevated);
+            border-left: 3px solid var(--primary);
         }
-        .message.user { 
-            background: #0063ab; 
-            text-align: right;
-            border-right: 4px solid #667eea;
+
+        .message.user {
+            background: var(--primary);
+            color: white;
+            margin-left: 2rem;
         }
-        .message strong { 
-            display: block; 
-            margin-bottom: 8px;
-            font-size: 14px;
+
+        .message strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
             opacity: 0.8;
         }
+
         .ai-thinking {
             display: none;
             align-items: center;
-            gap: 10px;
-            padding: 15px;
-            background: #545454;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border-left: 4px solid #ffc107;
+            gap: 0.8rem;
+            padding: 1rem;
+            background: var(--bg-elevated);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border-left: 3px solid var(--accent);
         }
+
         .ai-thinking.active {
             display: flex;
         }
+
         .spinner {
             width: 20px;
             height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        #chat-input { 
-            width: 100%; 
-            padding: 14px; 
-            border: 2px solid #ddd; 
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        
-        /* Preview Section */
-        #preview-container { 
-            flex: 2; 
-        }
-        #preview-frame { 
-            width: 100%; 
-            height: 600px; 
-            border: 2px solid #ddd; 
-            border-radius: 12px; 
-            background: white; 
-        }
-        
-        /* Buttons */
-        button { 
-            padding: 14px 32px; 
-            background: #667eea; 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-size: 18px;
-            font-weight: 600;
-            transition: background 0.3s, transform 0.2s;
-        }
-        button:hover { 
-            background: #5568d3;
-            transform: translateY(-2px);
-        }
-        button:disabled { 
-            background: #ccc; 
-            cursor: not-allowed;
-            transform: none;
-        }
-        .secondary-btn {
-            background: #6c757d;
-            margin-left: 10px;
-        }
-        .secondary-btn:hover {
-            background: #5a6268;
-        }
-        
-        .loading { opacity: 0.6; pointer-events: none; }
-        .error { color: #dc3545; margin-top: 15px; font-weight: 600; }
-        .success { color: #28a745; margin-top: 15px; font-weight: 600; }
 
-        /* Full Screen Modal */
+        .chat-input {
+            width: 100%;
+            padding: 0.9rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .preview-container {
+            flex: 2;
+        }
+
+        .preview-frame {
+            width: 100%;
+            height: 600px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: white;
+        }
+
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -350,171 +526,305 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.95);
+            background: rgba(0, 0, 0, 0.95);
         }
+
         .modal.active {
             display: flex;
             align-items: center;
             justify-content: center;
         }
+
         .modal-content {
             position: relative;
             width: 95%;
             height: 95%;
             background: white;
-            border-radius: 8px;
+            border-radius: 16px;
             overflow: hidden;
         }
+
         .modal-close {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 1rem;
+            right: 1rem;
             z-index: 10000;
-            background: #dc3545;
+            background: #ef4444;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
+            font-weight: 600;
         }
-        .modal-close:hover {
-            background: #c82333;
-        }
-        #fullscreen-frame {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
+
         .watermark {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            opacity: 0.2;
+            opacity: 0.15;
             pointer-events: none;
             z-index: 9998;
-            max-width: 80%;
-            max-height: 80%;
+            max-width: 60%;
         }
 
-        /* Payment Section */
-        #payment-section {
-            max-width: 800px;
-            margin: 60px auto;
-            padding: 40px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            text-align: center;
+        /* Utilities */
+        .hidden {
+            display: none !important;
         }
-        #payment-section h2 {
-            color: #667eea;
-            margin-bottom: 20px;
+
+        .error {
+            color: #ef4444;
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+
+        .success {
+            color: var(--success);
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .header-section h1 { font-size: 32px; }
-            .header-section .subtitle { font-size: 18px; }
-            .logo { max-width: 90%; }
-            #chat-section { flex-direction: column; }
-            #chat-container { max-width: 100%; }
-            .feature-grid { grid-template-columns: 1fr; }
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 5rem 1.5rem 3rem;
+            }
+
+            .features,
+            .pricing,
+            .form-section {
+                padding: 4rem 1.5rem;
+            }
+
+            .chat-section {
+                flex-direction: column;
+            }
+
+            .chat-container {
+                max-width: 100%;
+            }
+
+            .pricing-features {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <div class="header-section">
-        <img src="/DSGN.png" alt="DSGN LABS Website Builder Free" class="logo">
-        <h1>AI-Powered Website Builder</h1>
-        <p class="subtitle">Create Your Professional Website in Minutes</p>
-        <a href="#get-started" class="cta-button">Get Started Free*</a>
-    </div><div class="content-wrapper">
-<div class="content-section">
-            <h2>How DSGN LABS Web Builder Works</h2>
-            <p>Our innovative process makes website creation accessible to everyone, regardless of technical experience. Here's how we turn your vision into reality:</p>
-            
-            <h3>Step 1: Tell Us About Your Business</h3>
-            <p>Start by filling out a simple form with basic information about your business. You'll provide your business name, a catchy tagline that captures what you do, your brand colors, and a brief description of your services or products. If you have a logo, you can upload it too! This initial information helps Danny, our AI expert, understand your brand identity and business goals.</p>
-
-            <h3>Step 2: Chat with Danny, Your AI Web Designer</h3>
-            <p>Once you've submitted your information, you'll enter into a conversation with Danny, our intelligent AI assistant trained specifically in web design and user experience. Danny will ask you five carefully selected questions to dive deeper into your needs. These questions cover important aspects like what pages your website needs, your primary call-to-action, your preferred layout style, and the overall feeling you want your site to convey.</p>
-            <p>Danny's questions are conversational and easy to answer. There's no technical jargon, no confusing choices. Just natural conversation about your business. This approach ensures that the final website truly reflects your vision and serves your specific business objectives.</p>
-
-            <h3>Step 3: Watch Your Website Come to Life</h3>
-            <p>After Danny gathers all the necessary information, the AI goes to work building your website in real-time. Within moments, you'll see a complete, professional website appear in the preview window. The site includes all the pages you discussed, incorporates your brand colors and logo, features your content, and includes modern design elements like mobile responsiveness and smooth animations.</p>
-            <p>But we don't stop there. You can continue chatting with Danny to make adjustments. Want your logo centered instead of left-aligned? Just ask. Need the services section to use a different layout? Tell Danny. Prefer different button colors? No problem. Danny will regenerate your site with each change, giving you complete creative control without any coding required.</p>
-
-            <h3>Step 4: Preview in Full Screen</h3>
-            <p>Before making your final decision, you can view your website in a full-screen preview mode. This gives you a realistic sense of how your site will look to actual visitors. The preview is protected to ensure your custom design remains secure during the design process, but you'll be able to see every detail clearly and make informed decisions about any final tweaks.</p>
-
-            <h3>Step 5: Publish and Go Live</h3>
-            <p>When you're completely satisfied with your website, simply click the approval button. You'll be presented with our simple pricing options, complete the secure payment process, and receive immediate access to download your website files. Within three business days, we'll also have your free lifetime hosting set up, and you'll receive your live website URL via email.</p>
-        </div></div>
-        <!-- Form Section -->
-    <div id="form-section">
-        <h2 id="get-started">Start Building Your Website</h2>
-        <div class="form-group">
-            <label for="email">Email Address *</label>
-            <input type="email" id="email" placeholder="your@email.com" required>
-        </div>
-        <div class="form-group">
-            <label for="businessName">Business Name *</label>
-            <input type="text" id="businessName" placeholder="Your Business Name" required>
-        </div>
-        <div class="form-group">
-            <label for="tagline">Tagline *</label>
-            <input type="text" id="tagline" placeholder="Your business in one powerful sentence" required>
-        </div>
-        <div class="form-group">
-            <label for="logoFile">Logo File (optional)</label>
-            <input type="file" id="logoFile" accept="image/*">
-        </div>
-        <div class="form-group">
-            <label for="primaryColor">Primary Brand Color *</label>
-            <input type="color" id="primaryColor" value="#667eea">
-        </div>
-        <div class="form-group">
-            <label for="secondaryColor">Secondary Brand Color *</label>
-            <input type="color" id="secondaryColor" value="#764ba2">
-        </div>
-        <div class="form-group">
-            <label for="description">Business Description *</label>
-            <textarea id="description" placeholder="Tell us about your business, your services, what makes you unique, and what you want your website to accomplish..." required></textarea>
-        </div>
-        <div class="form-group">
-            <div class="checkbox-group">
-                <input type="checkbox" id="wantHosting" checked>
-                <label for="wantHosting">Yes, I want free lifetime hosting (setup within 3 business days)</label>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-content">
+            <img src="/DSGN.png" alt="DSGN LABS" class="logo-nav">
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#get-started" class="nav-cta">Get Started</a>
             </div>
         </div>
-        <button id="start-btn" onclick="startBuilding()">Start Building with Danny</button>
-        <div id="form-error" class="error"></div>
-    </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span>✨</span> AI-Powered Website Creation
+            </div>
+            <h1>Build Your Website<br>In Minutes, Not Months</h1>
+            <p class="hero-subtitle">
+                Chat with Danny, our AI web designer, and watch your professional website come to life in real-time. No coding required.
+            </p>
+            <div class="hero-buttons">
+                <a href="#get-started" class="btn btn-primary">
+                    Start Building Free →
+                </a>
+                <a href="#features" class="btn btn-secondary">
+                    See How It Works
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-header">
+            <div class="section-label">Why Choose DSGN LABS</div>
+            <h2 class="section-title">Everything You Need to Launch</h2>
+            <p class="section-description">
+                Professional websites powered by AI, delivered in minutes with lifetime hosting included.
+            </p>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>AI-Powered Design</h3>
+                <p>Danny creates custom designs tailored to your business, not cookie-cutter templates.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Lightning Fast</h3>
+                <p>Complete professional websites in minutes. Watch your site build in real-time.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3>Mobile Responsive</h3>
+                <p>Perfect on every device. Your site automatically adapts to phones, tablets, and desktops.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3>Fully Customizable</h3>
+                <p>Unlimited revisions during creation. Make it perfect before you pay.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <h3>Lifetime Hosting</h3>
+                <p>Free hosting forever. No monthly fees, no surprise charges.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📥</div>
+                <h3>Own Your Files</h3>
+                <p>Download everything. Full ownership and freedom to host anywhere.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
+        <div class="pricing-container">
+            <div class="section-header">
+                <div class="section-label">Simple Pricing</div>
+                <h2 class="section-title">Everything Included</h2>
+                <p class="section-description">
+                    One-time payment. No subscriptions, no hidden fees.
+                </p>
+            </div>
+
+            <div class="pricing-card">
+                <div class="pricing-badge">Most Popular</div>
+                <div class="pricing-header">
+                    <h3>Complete Website</h3>
+                    <div class="price">$0.50</div>
+                    <p class="price-description">One-time payment • No recurring fees</p>
+                </div>
+
+                <ul class="pricing-features">
+                    <li>Unlimited design revisions</li>
+                    <li>AI-powered custom design</li>
+                    <li>Mobile-responsive layout</li>
+                    <li>Free lifetime hosting</li>
+                    <li>Download all files</li>
+                    <li>SSL certificate included</li>
+                    <li>Email support</li>
+                    <li>Full code ownership</li>
+                </ul>
+
+                <a href="#get-started" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 1rem;">
+                    Get Started Free →
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Form Section -->
+    <section class="form-section" id="get-started">
+        <div class="section-header">
+            <div class="section-label">Get Started</div>
+            <h2 class="section-title">Tell Us About Your Business</h2>
+            <p class="section-description">
+                Fill out this quick form and start chatting with Danny
+            </p>
+        </div>
+
+        <div class="form-container">
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label for="businessName">Business Name *</label>
+                <input type="text" id="businessName" placeholder="Your Business Name" required>
+            </div>
+            <div class="form-group">
+                <label for="tagline">Tagline *</label>
+                <input type="text" id="tagline" placeholder="Your business in one powerful sentence" required>
+            </div>
+            <div class="form-group">
+                <label for="logoFile">Logo File (optional)</label>
+                <input type="file" id="logoFile" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label for="primaryColor">Primary Brand Color *</label>
+                <input type="color" id="primaryColor" value="#6366f1">
+            </div>
+            <div class="form-group">
+                <label for="secondaryColor">Secondary Brand Color *</label>
+                <input type="color" id="secondaryColor" value="#818cf8">
+            </div>
+            <div class="form-group">
+                <label for="description">Business Description *</label>
+                <textarea id="description" placeholder="Tell us about your business, services, and what makes you unique..." required></textarea>
+            </div>
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="wantHosting" checked>
+                    <label for="wantHosting">Yes, I want free lifetime hosting</label>
+                </div>
+            </div>
+            <button id="start-btn" class="btn btn-primary" style="width: 100%;" onclick="startBuilding()">
+                Start Building with Danny →
+            </button>
+            <div id="form-error" class="error"></div>
+        </div>
+    </section>
 
     <!-- Chat Section -->
-    <div id="chat-section" class="hidden">
-        <div id="chat-container">
+    <div id="chat-section" class="chat-section hidden">
+        <div class="chat-container">
             <h3>Chat with Danny</h3>
             <div class="ai-thinking" id="ai-thinking">
                 <div class="spinner"></div>
                 <span>Danny is thinking...</span>
             </div>
-            <div id="chat-messages"></div>
-            <input type="text" id="chat-input" placeholder="Type your response..." onkeypress="if(event.key==='Enter') sendMessage()">
-            <button onclick="sendMessage()" style="margin-top: 10px; width: 100%;">Send</button>
+            <div id="chat-messages" class="chat-messages"></div>
+            <input type="text" id="chat-input" class="chat-input" placeholder="Type your response..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <button class="btn btn-primary" onclick="sendMessage()" style="margin-top: 1rem; width: 100%;">Send Message</button>
             <div id="chat-error" class="error"></div>
         </div>
         
-        <div id="preview-container">
-            <h3>Preview</h3>
-            <iframe id="preview-frame"></iframe>
-            <div style="margin-top: 15px;">
-                <button onclick="openFullscreen()" class="secondary-btn">View Full Screen</button>
-                <button id="approve-btn" onclick="approveDesign()">I Love It! Ready to Publish</button>
+        <div class="preview-container">
+            <h3>Live Preview</h3>
+            <iframe id="preview-frame" class="preview-frame"></iframe>
+            <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+                <button onclick="openFullscreen()" class="btn btn-secondary">View Full Screen</button>
+                <button id="approve-btn" class="btn btn-primary" onclick="approveDesign()">Ready to Publish →</button>
             </div>
         </div>
     </div>
@@ -524,133 +834,43 @@
         <button class="modal-close" onclick="closeFullscreen()">Close Preview</button>
         <div class="modal-content">
             <img src="/DSGN.png" alt="Watermark" class="watermark">
-            <iframe id="fullscreen-frame"></iframe>
+            <iframe id="fullscreen-frame" style="width: 100%; height: 100%; border: none;"></iframe>
         </div>
     </div>
 
     <!-- Payment Section -->
-    <div id="payment-section" class="hidden">
-        <h2>Almost There!</h2>
-        <p style="font-size: 18px;">The design process with Danny is always free. When you're ready to go live, you can download all the website files and get your site published for a one-time payment of $50.</p>
-        <p style="font-size: 16px; color: #666; margin: 20px 0;">Your website files will be available for download for 3 days after payment.</p>
-        <button id="payment-btn" onclick="initiatePayment()">Proceed with Payment ($50)</button>
-        <div id="payment-status"></div>
-    </div>
-    <!-- SEO Content -->
-    <div class="content-wrapper">
-        <div class="content-section">
-            <h2>Transform Your Business with AI-Powered Web Design</h2>
-            <p>Welcome to DSGN LABS Web Builder, the revolutionary platform that combines artificial intelligence with professional web design to create stunning, fully functional websites in minutes instead of weeks. Whether you're a small business owner, freelancer, entrepreneur, or creative professional, our AI assistant Danny makes website creation as simple as having a conversation.</p>
-            <p>Gone are the days of struggling with complicated website builders, hiring expensive developers, or settling for cookie-cutter templates. DSGN LABS Web Builder uses cutting-edge AI technology to understand your unique business needs and craft a custom website that perfectly represents your brand, engages your audience, and drives results.</p>
+    <div id="payment-section" class="form-section hidden">
+        <div class="section-header">
+            <h2 class="section-title">Almost There!</h2>
+            <p class="section-description">
+                Your design is ready. Complete payment to download files and activate hosting.
+            </p>
         </div>
 
-        <div class="content-section">
-            <h2>Why Choose DSGN LABS Web Builder?</h2>
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <h3>🤖 AI-Powered Design</h3>
-                    <p style="color: #1E2B41;">Our advanced AI doesn't just use templates. It creates unique, custom designs tailored specifically to your business needs, brand identity, and industry best practices.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>⚡ Lightning Fast</h3>
-                    <p style="color: #1E2B41;">Get a complete, professional website in minutes, not months. What used to take weeks of back-and-forth with designers now happens in a single session.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>💰 Transparent Pricing</h3>
-                    <p style="color: #1E2B41;">No hidden fees, no monthly subscriptions that add up over time. One flat fee of $50 includes your custom website, downloadable files, and optional lifetime hosting.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>📱 Mobile Responsive</h3>
-                    <p style="color: #1E2B41;">Every website we create automatically looks perfect on phones, tablets, and desktop computers. Your visitors get a great experience on any device.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>🎨 Fully Customizable</h3>
-                    <p style="color: #1E2B41;">Make unlimited changes during the design process. Danny will adjust anything you want until your website is exactly how you envision it.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>🔒 Secure & Fast</h3>
-                    <p style="color: #1E2B41;">Your website is built using modern, clean code with no unnecessary bloat. This means faster loading times, better security, and improved search engine rankings.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>📥 Own Your Files</h3>
-                    <p style="color: #1E2B41;">Download all your website files immediately after payment. You own everything and can host it anywhere you choose, giving you complete freedom and control.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>🌐 Professional Quality</h3>
-                    <p style="color: #1E2B41;">Get the same quality websites that professional agencies charge thousands of dollars for, but at a fraction of the cost and time investment.</p>
-                </div>
+        <div class="pricing-card" style="max-width: 600px; margin: 0 auto;">
+            <div class="pricing-header">
+                <h3>Your Website is Ready</h3>
+                <div class="price">$0.50</div>
+                <p class="price-description">One-time payment</p>
             </div>
-        </div>
 
-        <div class="content-section">
-            <h2>Simple, Transparent Pricing</h2>
-            <div class="pricing-box">
-                <h3>Everything You Need</h3>
-                <div class="price">$50</div>
-                <p style="font-size: 20px; margin: 0;">One-time payment. No recurring fees.</p>
-                <ul>
-                    <li>Unlimited design revisions during creation</li>
-                    <li>Complete conversation with Danny, our AI expert</li>
-                    <li>Custom-designed, professional website</li>
-                    <li>Mobile-responsive design (looks great on all devices)</li>
-                    <li>All website files delivered immediately</li>
-                    <li>Optional free lifetime hosting (setup within 3 business days)</li>
-                    <li>Download files available for 3 days after payment</li>
-                    <li>Email support for technical questions</li>
-                    <li>Own all rights to your website code and design</li>
-                </ul>
-                <p style="margin-top: 30px; font-size: 16px; opacity: 0.9;">The entire design process is 100% free. You only pay when you're completely satisfied and ready to publish.</p>
-            </div>
-        </div>
+            <ul class="pricing-features">
+                <li>Download all website files</li>
+                <li>Free lifetime hosting</li>
+                <li>Live within 3 business days</li>
+                <li>Full ownership & rights</li>
+            </ul>
 
-        <div class="content-section">
-            <h2>Hosting Options</h2>
-            <p>When you purchase your website, you have two flexible options to choose from:</p>
-            
-            <h3>Option 1: Free Lifetime Hosting</h3>
-            <p>Choose our free lifetime hosting option and we'll handle everything for you. Within three business days of payment, we'll set up your website on our high-performance hosting infrastructure powered by Cloudflare Pages. You'll receive a professional URL where your site will be live and accessible to the world. This hosting is included free for life with your $50 purchase, with no monthly fees, no renewal costs, and no surprise charges. Your site will benefit from global CDN distribution, automatic HTTPS security, and 99.9% uptime guarantee.</p>
-
-            <h3>Option 2: Self-Hosting</h3>
-            <p>If you prefer to host your website yourself, perhaps you already have hosting or want to use a specific provider, that's perfectly fine too! You'll receive all your website files immediately after payment, complete with simple deployment instructions. Your website is built as a static site, which means it can be hosted anywhere: your own hosting account, Netlify, Vercel, GitHub Pages, or any other hosting service you prefer. The same $50 price applies regardless of your hosting choice because you're paying for the custom design and AI-powered creation process.</p>
-
-            <h3>File Availability</h3>
-            <p>After payment, you'll receive an email with a secure download link for your website files. This link remains active for three full days, giving you plenty of time to download your files multiple times if needed. After three days, the download link expires for security purposes. If you've chosen our free hosting option, your site will already be live by then. If you're self-hosting and need the files again after expiration, simply contact our support team and we'll be happy to assist you.</p>
-        </div>
-
-        <div class="content-section">
-            <h2>What You Get</h2>
-            <p>Your DSGN LABS website includes everything you need for a professional online presence:</p>
-            <p><strong>Complete HTML/CSS/JavaScript files:</strong> Your website is delivered as clean, modern, hand-crafted code that loads quickly and performs beautifully. All styling and functionality is included in easy-to-understand files.</p>
-            <p><strong>Mobile-responsive design:</strong> Your site automatically adapts to look perfect on smartphones, tablets, laptops, and desktop computers. Over 60% of web traffic comes from mobile devices, and your site will be ready for all of them.</p>
-            <p><strong>Custom color scheme:</strong> Your brand colors are integrated throughout the design, creating a cohesive look that reinforces your brand identity on every page.</p>
-            <p><strong>Professional layout:</strong> Clean, modern design that follows current web design best practices and user experience principles. Your site will look like it was created by a professional agency.</p>
-            <p><strong>Optimized for speed:</strong> Fast-loading websites rank better in search engines and keep visitors engaged. Your site is built with performance in mind from the ground up.</p>
-            <p><strong>SEO-friendly structure:</strong> Proper HTML structure, meta tags, and semantic markup help search engines understand and rank your content effectively.</p>
-            <p><strong>Ready to customize further:</strong> If you know HTML/CSS or work with a developer, the clean code makes future customizations easy. You're never locked into our system.</p>
-        </div>
-
-        <div class="content-section">
-            <h2>Perfect for Every Business</h2>
-            <p>DSGN LABS Web Builder serves businesses and professionals across all industries. Our AI adapts to your specific needs, whether you're a local restaurant needing a menu and contact information, a consultant showcasing your services and testimonials, a photographer displaying your portfolio, a retail store highlighting your products, or a service provider explaining what you offer. Small businesses love our affordable pricing and quick turnaround. Freelancers appreciate the professional results without the professional price tag. Entrepreneurs value the speed that lets them launch quickly and test their ideas. Non-profits benefit from our simple process that doesn't require technical staff.</p>
-        </div>
-
-        <div class="content-section">
-            <h2>The Technology Behind DSGN LABS</h2>
-            <p>DSGN LABS Web Builder is powered by advanced artificial intelligence technology specifically trained in web design, user experience, and modern development practices. Danny, our AI assistant, understands design principles, color theory, layout best practices, and how to create websites that convert visitors into customers. Unlike simple template systems, our AI generates truly custom code for each website, considering your unique business needs, industry standards, and target audience.</p>
-            <p>The websites we create use modern web standards including HTML5, CSS3, and vanilla JavaScript. This means they're fast, secure, and compatible with all modern browsers. We don't rely on heavy frameworks or unnecessary libraries that slow down your site. Every line of code serves a purpose, resulting in lean, efficient websites that load quickly and perform excellently.</p>
-            <p>Our infrastructure is built on Cloudflare Pages, one of the world's fastest and most reliable hosting platforms. When you choose our lifetime hosting option, your website benefits from global content delivery network distribution, automatic HTTPS encryption, DDoS protection, and edge caching that makes your site lightning-fast for visitors anywhere in the world.</p>
-        </div>
-
-        <div class="content-section">
-            <h2>Ready to Build Your Website?</h2>
-            <p>Join thousands of businesses who have already discovered the easiest way to create a professional website. The entire design process is completely free. You'll only pay the one-time $50 fee when you're absolutely satisfied with your website and ready to publish. There's no risk, no commitment, and no credit card required to start.</p>
-            <p>Simply fill out the form above to begin your conversation with Danny. In just a few minutes, you'll see your custom website take shape before your eyes. If you love it, great! If you want changes, just ask. It's that simple.</p>
+            <button id="payment-btn" class="btn btn-primary" onclick="initiatePayment()" style="width: 100%; justify-content: center; margin-top: 1rem;">
+                Complete Payment ($0.50) →
+            </button>
+            <div id="payment-status"></div>
         </div>
     </div>
-
 
     <script src="https://js.stripe.com/v3/"></script>
     <script>
+        // Session data
         let sessionData = {
             email: '',
             businessName: '',
@@ -665,6 +885,7 @@
             siteVersion: 0
         };
 
+        // Start building
         async function startBuilding() {
             const email = document.getElementById('email').value.trim();
             const businessName = document.getElementById('businessName').value.trim();
@@ -680,7 +901,6 @@
                 return;
             }
 
-            // Basic email validation
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 document.getElementById('form-error').textContent = 'Please enter a valid email address';
@@ -690,7 +910,6 @@
             document.getElementById('start-btn').disabled = true;
             document.getElementById('start-btn').textContent = 'Starting...';
 
-            // Convert logo to base64 if provided
             if (logoFile) {
                 sessionData.logo = await fileToBase64(logoFile);
             }
@@ -703,20 +922,16 @@
             sessionData.description = description;
             sessionData.wantHosting = wantHosting;
 
-            // Hide form, show chat
-            document.getElementById('form-section').classList.add('hidden');
+            document.querySelector('.form-section').classList.add('hidden');
             document.getElementById('chat-section').classList.remove('hidden');
-
-            // Scroll to chat
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            // Initialize conversation with Danny
             await initializeConversation();
         }
 
+        // Initialize conversation
         async function initializeConversation() {
             const initialPrompt = `Business Name: ${sessionData.businessName}
-Industry/Type: Based on description
 Tagline: ${sessionData.tagline}
 Colors: Primary ${sessionData.primaryColor}, Secondary ${sessionData.secondaryColor}
 Logo: ${sessionData.logo ? 'Provided' : 'Not provided'}
@@ -727,6 +942,7 @@ Hosting Preference: ${sessionData.wantHosting ? 'Wants free lifetime hosting' : 
             await callDanny('START', initialPrompt);
         }
 
+        // Send message
         async function sendMessage() {
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
@@ -741,11 +957,11 @@ Hosting Preference: ${sessionData.wantHosting ? 'Wants free lifetime hosting' : 
             input.focus();
         }
 
+        // Call Danny API
         async function callDanny(type, message) {
             try {
                 const thinkingIndicator = document.getElementById('ai-thinking');
                 thinkingIndicator.classList.add('active');
-                document.getElementById('chat-messages').classList.add('loading');
                 
                 const response = await fetch('/api/chat', {
                     method: 'POST',
@@ -764,7 +980,6 @@ Hosting Preference: ${sessionData.wantHosting ? 'Wants free lifetime hosting' : 
                 addMessage('danny', data.response);
                 sessionData.conversationHistory = data.conversationHistory;
 
-                // If site was generated, update preview
                 if (data.siteHTML) {
                     sessionData.generatedSite = data.siteHTML;
                     sessionData.siteVersion++;
@@ -775,10 +990,10 @@ Hosting Preference: ${sessionData.wantHosting ? 'Wants free lifetime hosting' : 
                 document.getElementById('chat-error').textContent = error.message;
             } finally {
                 document.getElementById('ai-thinking').classList.remove('active');
-                document.getElementById('chat-messages').classList.remove('loading');
             }
         }
 
+        // Add message to chat
         function addMessage(sender, text) {
             const messagesDiv = document.getElementById('chat-messages');
             const messageDiv = document.createElement('div');
@@ -788,6 +1003,7 @@ Hosting Preference: ${sessionData.wantHosting ? 'Wants free lifetime hosting' : 
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
+        // Update preview
         function updatePreview(html) {
             const iframe = document.getElementById('preview-frame');
             const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
@@ -796,15 +1012,10 @@ Hosting Preference: ${sessionData.wantHosting ? 'Wants free lifetime hosting' : 
             iframeDoc.write(html);
             iframeDoc.close();
 
-            // Disable right-click and inspect
             iframe.contentWindow.document.addEventListener('contextmenu', e => e.preventDefault());
-            iframe.contentWindow.document.addEventListener('keydown', e => {
-                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.shiftKey && e.key === 'C')) {
-                    e.preventDefault();
-                }
-            });
         }
 
+        // Open fullscreen
         function openFullscreen() {
             if (!sessionData.generatedSite) return;
             
@@ -816,41 +1027,38 @@ Hosting Preference: ${sessionData.wantHosting ? 'Wants free lifetime hosting' : 
             iframeDoc.write(sessionData.generatedSite);
             iframeDoc.close();
 
-            // Disable right-click and inspect in fullscreen
             fullscreenFrame.contentWindow.document.addEventListener('contextmenu', e => e.preventDefault());
-            fullscreenFrame.contentWindow.document.addEventListener('keydown', e => {
-                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.shiftKey && e.key === 'C') || (e.metaKey && e.altKey && e.key === 'I')) {
-                    e.preventDefault();
-                }
-            });
 
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
 
+        // Close fullscreen
         function closeFullscreen() {
             const modal = document.getElementById('fullscreen-modal');
             modal.classList.remove('active');
             document.body.style.overflow = 'auto';
         }
 
-        // Close modal on ESC key
+        // Close modal on ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeFullscreen();
             }
         });
 
+        // Approve design
         async function approveDesign() {
             document.getElementById('chat-section').classList.add('hidden');
             document.getElementById('payment-section').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // Initiate payment
         async function initiatePayment() {
             try {
                 document.getElementById('payment-btn').disabled = true;
-                document.getElementById('payment-status').innerHTML = '<p>Redirecting to secure payment...</p>';
+                document.getElementById('payment-status').innerHTML = '<p style="color: var(--text-secondary);">Redirecting to secure payment...</p>';
 
                 const response = await fetch('/api/create-checkout', {
                     method: 'POST',
@@ -867,7 +1075,6 @@ Hosting Preference: ${sessionData.wantHosting ? 'Wants free lifetime hosting' : 
                 
                 if (!response.ok) throw new Error(data.error || 'Payment initialization failed');
 
-                // Redirect to Stripe
                 const stripe = Stripe(data.publishableKey);
                 await stripe.redirectToCheckout({ sessionId: data.sessionId });
 
@@ -877,6 +1084,7 @@ Hosting Preference: ${sessionData.wantHosting ? 'Wants free lifetime hosting' : 
             }
         }
 
+        // File to base64
         function fileToBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -885,6 +1093,17 @@ Hosting Preference: ${sessionData.wantHosting ? 'Wants free lifetime hosting' : 
                 reader.readAsDataURL(file);
             });
         }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
     </script>
 </body>
 </html>
