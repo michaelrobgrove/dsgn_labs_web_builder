@@ -426,23 +426,7 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <div class="header-section">
-        <img src="/DSGN.png" alt="DSGN LABS" class="logo">
-        <h1>AI-Powered Website Builder</h1>
-        <p class="subtitle">Create Your Professional Website in Minutes</p>
-        <a href="#get-started" class="cta-button">Get Started Free</a>
-    </div>
-
-    <!-- SEO Content -->
-    <div class="content-wrapper">
-        <div class="content-section">
-            <h2>Transform Your Business with AI-Powered Web Design</h2>
-            <p>Welcome to DSGN LABS Web Builder, the revolutionary platform that combines artificial intelligence with professional web design to create stunning, fully functional websites in minutes instead of weeks. Whether you're a small business owner, freelancer, entrepreneur, or creative professional, our AI assistant Danny makes website creation as simple as having a conversation.</p>
-            <p>Gone are the days of struggling with complicated website builders, hiring expensive developers, or settling for cookie-cutter templates. DSGN LABS Web Builder uses cutting-edge AI technology to understand your unique business needs and craft a custom website that perfectly represents your brand, engages your audience, and drives results.</p>
-        </div>
-
-        <div class="content-section">
+ <div class="content-section">
             <h2>How DSGN LABS Web Builder Works</h2>
             <p>Our innovative process makes website creation accessible to everyone, regardless of technical experience. Here's how we turn your vision into reality:</p>
             
@@ -462,6 +446,103 @@
 
             <h3>Step 5: Publish and Go Live</h3>
             <p>When you're completely satisfied with your website, simply click the approval button. You'll be presented with our simple pricing options, complete the secure payment process, and receive immediate access to download your website files. Within three business days, we'll also have your free lifetime hosting set up, and you'll receive your live website URL via email.</p>
+        </div>
+        <!-- Form Section -->
+    <div id="form-section">
+        <h2 id="get-started">Start Building Your Website</h2>
+        <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" placeholder="your@email.com" required>
+        </div>
+        <div class="form-group">
+            <label for="businessName">Business Name *</label>
+            <input type="text" id="businessName" placeholder="Your Business Name" required>
+        </div>
+        <div class="form-group">
+            <label for="tagline">Tagline *</label>
+            <input type="text" id="tagline" placeholder="Your business in one powerful sentence" required>
+        </div>
+        <div class="form-group">
+            <label for="logoFile">Logo File (optional)</label>
+            <input type="file" id="logoFile" accept="image/*">
+        </div>
+        <div class="form-group">
+            <label for="primaryColor">Primary Brand Color *</label>
+            <input type="color" id="primaryColor" value="#667eea">
+        </div>
+        <div class="form-group">
+            <label for="secondaryColor">Secondary Brand Color *</label>
+            <input type="color" id="secondaryColor" value="#764ba2">
+        </div>
+        <div class="form-group">
+            <label for="description">Business Description *</label>
+            <textarea id="description" placeholder="Tell us about your business, your services, what makes you unique, and what you want your website to accomplish..." required></textarea>
+        </div>
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="wantHosting" checked>
+                <label for="wantHosting">Yes, I want free lifetime hosting (setup within 3 business days)</label>
+            </div>
+        </div>
+        <button id="start-btn" onclick="startBuilding()">Start Building with Danny</button>
+        <div id="form-error" class="error"></div>
+    </div>
+
+    <!-- Chat Section -->
+    <div id="chat-section" class="hidden">
+        <div id="chat-container">
+            <h3>Chat with Danny</h3>
+            <div class="ai-thinking" id="ai-thinking">
+                <div class="spinner"></div>
+                <span>Danny is thinking...</span>
+            </div>
+            <div id="chat-messages"></div>
+            <input type="text" id="chat-input" placeholder="Type your response..." onkeypress="if(event.key==='Enter') sendMessage()">
+            <button onclick="sendMessage()" style="margin-top: 10px; width: 100%;">Send</button>
+            <div id="chat-error" class="error"></div>
+        </div>
+        
+        <div id="preview-container">
+            <h3>Preview</h3>
+            <iframe id="preview-frame"></iframe>
+            <div style="margin-top: 15px;">
+                <button onclick="openFullscreen()" class="secondary-btn">View Full Screen</button>
+                <button id="approve-btn" onclick="approveDesign()">I Love It! Ready to Publish</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Modal -->
+    <div id="fullscreen-modal" class="modal">
+        <button class="modal-close" onclick="closeFullscreen()">Close Preview</button>
+        <div class="modal-content">
+            <img src="/DSGN.png" alt="Watermark" class="watermark">
+            <iframe id="fullscreen-frame"></iframe>
+        </div>
+    </div>
+
+    <!-- Payment Section -->
+    <div id="payment-section" class="hidden">
+        <h2>Almost There!</h2>
+        <p style="font-size: 18px;">The design process with Danny is always free. When you're ready to go live, you can download all the website files and get your site published for a one-time payment of $50.</p>
+        <p style="font-size: 16px; color: #666; margin: 20px 0;">Your website files will be available for download for 3 days after payment.</p>
+        <button id="payment-btn" onclick="initiatePayment()">Proceed with Payment ($50)</button>
+        <div id="payment-status"></div>
+    </div>
+    <!-- Header -->
+    <div class="header-section">
+        <img src="/DSGN.png" alt="DSGN LABS" class="logo">
+        <h1>AI-Powered Website Builder</h1>
+        <p class="subtitle">Create Your Professional Website in Minutes</p>
+        <a href="#get-started" class="cta-button">Get Started Free</a>
+    </div>
+
+    <!-- SEO Content -->
+    <div class="content-wrapper">
+        <div class="content-section">
+            <h2>Transform Your Business with AI-Powered Web Design</h2>
+            <p>Welcome to DSGN LABS Web Builder, the revolutionary platform that combines artificial intelligence with professional web design to create stunning, fully functional websites in minutes instead of weeks. Whether you're a small business owner, freelancer, entrepreneur, or creative professional, our AI assistant Danny makes website creation as simple as having a conversation.</p>
+            <p>Gone are the days of struggling with complicated website builders, hiring expensive developers, or settling for cookie-cutter templates. DSGN LABS Web Builder uses cutting-edge AI technology to understand your unique business needs and craft a custom website that perfectly represents your brand, engages your audience, and drives results.</p>
         </div>
 
         <div class="content-section">
@@ -564,92 +645,10 @@
         <div class="content-section">
             <h2>Ready to Build Your Website?</h2>
             <p>Join thousands of businesses who have already discovered the easiest way to create a professional website. The entire design process is completely free. You'll only pay the one-time $50 fee when you're absolutely satisfied with your website and ready to publish. There's no risk, no commitment, and no credit card required to start.</p>
-            <p>Simply fill out the form below to begin your conversation with Danny. In just a few minutes, you'll see your custom website take shape before your eyes. If you love it, great! If you want changes, just ask. It's that simple.</p>
+            <p>Simply fill out the form above to begin your conversation with Danny. In just a few minutes, you'll see your custom website take shape before your eyes. If you love it, great! If you want changes, just ask. It's that simple.</p>
         </div>
     </div>
 
-    <!-- Form Section -->
-    <div id="form-section">
-        <h2 id="get-started">Start Building Your Website</h2>
-        <div class="form-group">
-            <label for="email">Email Address *</label>
-            <input type="email" id="email" placeholder="your@email.com" required>
-        </div>
-        <div class="form-group">
-            <label for="businessName">Business Name *</label>
-            <input type="text" id="businessName" placeholder="Your Business Name" required>
-        </div>
-        <div class="form-group">
-            <label for="tagline">Tagline *</label>
-            <input type="text" id="tagline" placeholder="Your business in one powerful sentence" required>
-        </div>
-        <div class="form-group">
-            <label for="logoFile">Logo File (optional)</label>
-            <input type="file" id="logoFile" accept="image/*">
-        </div>
-        <div class="form-group">
-            <label for="primaryColor">Primary Brand Color *</label>
-            <input type="color" id="primaryColor" value="#667eea">
-        </div>
-        <div class="form-group">
-            <label for="secondaryColor">Secondary Brand Color *</label>
-            <input type="color" id="secondaryColor" value="#764ba2">
-        </div>
-        <div class="form-group">
-            <label for="description">Business Description *</label>
-            <textarea id="description" placeholder="Tell us about your business, your services, what makes you unique, and what you want your website to accomplish..." required></textarea>
-        </div>
-        <div class="form-group">
-            <div class="checkbox-group">
-                <input type="checkbox" id="wantHosting" checked>
-                <label for="wantHosting">Yes, I want free lifetime hosting (setup within 3 business days)</label>
-            </div>
-        </div>
-        <button id="start-btn" onclick="startBuilding()">Start Building with Danny</button>
-        <div id="form-error" class="error"></div>
-    </div>
-
-    <!-- Chat Section -->
-    <div id="chat-section" class="hidden">
-        <div id="chat-container">
-            <h3>Chat with Danny</h3>
-            <div class="ai-thinking" id="ai-thinking">
-                <div class="spinner"></div>
-                <span>Danny is thinking...</span>
-            </div>
-            <div id="chat-messages"></div>
-            <input type="text" id="chat-input" placeholder="Type your response..." onkeypress="if(event.key==='Enter') sendMessage()">
-            <button onclick="sendMessage()" style="margin-top: 10px; width: 100%;">Send</button>
-            <div id="chat-error" class="error"></div>
-        </div>
-        
-        <div id="preview-container">
-            <h3>Preview</h3>
-            <iframe id="preview-frame"></iframe>
-            <div style="margin-top: 15px;">
-                <button onclick="openFullscreen()" class="secondary-btn">View Full Screen</button>
-                <button id="approve-btn" onclick="approveDesign()">I Love It! Ready to Publish</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Fullscreen Modal -->
-    <div id="fullscreen-modal" class="modal">
-        <button class="modal-close" onclick="closeFullscreen()">Close Preview</button>
-        <div class="modal-content">
-            <img src="/DSGN.png" alt="Watermark" class="watermark">
-            <iframe id="fullscreen-frame"></iframe>
-        </div>
-    </div>
-
-    <!-- Payment Section -->
-    <div id="payment-section" class="hidden">
-        <h2>Almost There!</h2>
-        <p style="font-size: 18px;">The design process with Danny is always free. When you're ready to go live, you can download all the website files and get your site published for a one-time payment of $50.</p>
-        <p style="font-size: 16px; color: #666; margin: 20px 0;">Your website files will be available for download for 3 days after payment.</p>
-        <button id="payment-btn" onclick="initiatePayment()">Proceed with Payment ($50)</button>
-        <div id="payment-status"></div>
-    </div>
 
     <script src="https://js.stripe.com/v3/"></script>
     <script>
