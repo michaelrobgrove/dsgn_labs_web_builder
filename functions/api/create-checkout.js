@@ -44,7 +44,7 @@ export async function onRequestPost(context) {
                         name: 'Website Download + Lifetime Hosting',
                         description: `For ${finalBusinessName} - ${finalWantHosting ? 'Includes free lifetime hosting' : 'Self-hosting option'}`,
                     },
-                    unit_amount: 5000, // $50.00
+                    unit_amount: 50, // $50.00
                 },
                 quantity: 1,
             }],
