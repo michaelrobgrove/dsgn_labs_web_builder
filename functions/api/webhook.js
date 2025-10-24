@@ -36,11 +36,11 @@ export async function onRequestPost(context) {
 
             // Try to retrieve stored site data from KV
             let siteData;
-            const siteDataObj = await env.SITE_STORAGE.get(`pending/${session.id}.json`);
+            const siteDataStr = await env.SITE_STORAGE.get(`pending/${session.id}.json`);
             
-            if (siteDataObj) {
+            if (siteDataStr) {
                 console.log('Found site data in KV storage');
-                siteData = JSON.parse(await siteDataObj.text());
+                siteData = JSON.parse(siteDataStr);
             } else {
                 // Fallback: reconstruct from metadata if KV data is missing
                 console.log('Site data not found in KV, reconstructing from metadata');
@@ -135,7 +135,7 @@ https://web.yourdsgn.pro`);
             console.log('ZIP file stored successfully in R2');
 
             // Delete pending data from KV if it exists
-            if (siteDataObj) {
+            if (siteDataStr) {
                 await env.SITE_STORAGE.delete(`pending/${session.id}.json`);
                 console.log('Deleted pending session from KV');
             }
@@ -220,7 +220,7 @@ https://web.yourdsgn.pro`);
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    from: 'Danny from DSGN LABS <danny@yourdsgn.pro>',
+                    from: 'DSGN LABS <noreply@yourdsgn.pro>',
                     to: [siteData.email],
                     subject: `Your ${siteData.businessName} Website is Ready! 🎉`,
                     html: emailHtml
