@@ -13,22 +13,19 @@
         /* Header Section */
 .header-section {
     color: white;
-    height: 100vh; /* Sets height to 100% of the viewport height */
-    
-    /* This creates the black overlay on top of the image */
-    background: linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)), url('DSGN_grey_back.jpg');
-    
-    /* These properties ensure your image covers the entire section */
+    height: 100vh; 
+    /* FIX 1: Changed path to /DSGN_grey_back.jpg
+      This tells the browser to find the image starting from your website's root folder.
+    */
+    background: linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)), url('./DSGN_grey_back.jpg');
     background-size: cover;
     background-position: center;
-    
-    /* These flex properties center your content vertically and horizontally */
+    /* --- LAYOUT FIX --- */
     display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    
-    /* Replaces original padding for better responsive control */
+    flex-direction: column; /* This stacks your items (logo, text, button) vertically */
+    justify-content: center; /* This centers the stack vertically */
+    align-items: center;     /* This centers the stack horizontally */
+    text-align: center; /* Ensures text inside the items is also centered */
     padding: 20px; 
 }
         .logo { 
