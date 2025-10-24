@@ -220,7 +220,7 @@ https://web.yourdsgn.pro`);
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    from: 'DSGN LABS <noreply@yourdsgn.pro>',
+                    from: 'Danny from DSGN LABS <danny@yourdsgn.pro>',
                     to: [siteData.email],
                     subject: `Your ${siteData.businessName} Website is Ready! 🎉`,
                     html: emailHtml
