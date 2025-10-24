@@ -13,18 +13,9 @@
         /* Header Section */
         .header-section { 
             text-align: center; 
-            padding: 60px 20px 40px;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)), url('/DSGN_grey_back.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            padding: 60px 20px 40px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            position: relative;
         }
         .logo { 
             max-width: 600px; 
@@ -75,7 +66,7 @@
         }
         .content-section h2 {
             font-size: 36px;
-            color: #ffffff;
+            color: #333;
             margin-bottom: 20px;
             border-bottom: 3px solid #667eea;
             padding-bottom: 10px;
@@ -140,7 +131,7 @@
         /* Form Section */
         #form-section { 
             max-width: 700px; 
-            margin: 0 auto 60px; 
+            margin: 60px auto; 
             padding: 40px;
             background: white;
             border-radius: 12px;
@@ -204,21 +195,9 @@
             height: 24px;
             cursor: pointer;
         }
-        /* Intro Section */
-        .intro-section {
-            max-width: 900px;
-            margin: -80px auto 60px;
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            text-align: center;
-        }
-        .intro-section p {
-            font-size: 20px;
-            line-height: 1.7;
-            color: #333;
+        .checkbox-group label {
             margin: 0;
+            cursor: pointer;
         }
         
         /* Hidden class */
@@ -438,18 +417,12 @@
     <div class="header-section">
         <img src="/DSGN.png" alt="DSGN LABS" class="logo">
         <h1>AI-Powered Website Builder</h1>
-        <p class="subtitle">Create Your Professional Website for Free</p>
+        <p class="subtitle">Create Your Professional Website in Minutes</p>
         <a href="#get-started" class="cta-button">Get Started Free</a>
     </div>
 
-    <!-- Intro Section -->
-    <div class="intro-section">
-        <p>Welcome to DSGN LABS Web Builder, the revolutionary platform that combines artificial intelligence with professional web design to create stunning, fully functional websites in minutes instead of weeks. Chat with Danny, our AI expert, and watch your website come to life!</p>
-    </div>
-
-    <!-- Form Section -->
-    <div id="form-section">
-        <h2 id="get-started">Start Building Your Website</h2>
+    <!-- SEO Content -->
+    <div class="content-wrapper">
         <div class="content-section">
             <h2>Transform Your Business with AI-Powered Web Design</h2>
             <p>Welcome to DSGN LABS Web Builder, the revolutionary platform that combines artificial intelligence with professional web design to create stunning, fully functional websites in minutes instead of weeks. Whether you're a small business owner, freelancer, entrepreneur, or creative professional, our AI assistant Danny makes website creation as simple as having a conversation.</p>
@@ -523,18 +496,17 @@
                 <div class="price">$50</div>
                 <p style="font-size: 20px; margin: 0;">One-time payment. No recurring fees.</p>
                 <ul>
-                    <li>Build your website completely FREE</li>
                     <li>Unlimited design revisions during creation</li>
                     <li>Complete conversation with Danny, our AI expert</li>
                     <li>Custom-designed, professional website</li>
                     <li>Mobile-responsive design (looks great on all devices)</li>
-                    <li>All website files delivered immediately upon purchase</li>
+                    <li>All website files delivered immediately</li>
                     <li>Optional free lifetime hosting (setup within 3 business days)</li>
                     <li>Download files available for 3 days after payment</li>
                     <li>Email support for technical questions</li>
                     <li>Own all rights to your website code and design</li>
                 </ul>
-                <p style="margin-top: 30px; font-size: 18px; opacity: 0.95; font-weight: 600;">The entire design process is 100% FREE. You only pay $50 when you're completely satisfied and ready to download your files.</p>
+                <p style="margin-top: 30px; font-size: 16px; opacity: 0.9;">The entire design process is 100% free. You only pay when you're completely satisfied and ready to publish.</p>
             </div>
         </div>
 
@@ -579,10 +551,13 @@
         <div class="content-section">
             <h2>Ready to Build Your Website?</h2>
             <p>Join thousands of businesses who have already discovered the easiest way to create a professional website. The entire design process is completely free. You'll only pay the one-time $50 fee when you're absolutely satisfied with your website and ready to publish. There's no risk, no commitment, and no credit card required to start.</p>
+            <p>Simply fill out the form below to begin your conversation with Danny. In just a few minutes, you'll see your custom website take shape before your eyes. If you love it, great! If you want changes, just ask. It's that simple.</p>
         </div>
     </div>
 
-    <!-- Chat Section -->
+    <!-- Form Section -->
+    <div id="form-section">
+        <h2 id="get-started">Start Building Your Website</h2>
         <div class="form-group">
             <label for="email">Email Address *</label>
             <input type="email" id="email" placeholder="your@email.com" required>
@@ -621,8 +596,7 @@
         <div id="form-error" class="error"></div>
     </div>
 
-    <!-- SEO Content -->
-    <div class="content-wrapper">
+    <!-- Chat Section -->
     <div id="chat-section" class="hidden">
         <div id="chat-container">
             <h3>Chat with Danny</h3>
@@ -657,11 +631,10 @@
 
     <!-- Payment Section -->
     <div id="payment-section" class="hidden">
-        <h2>Love Your Website?</h2>
-        <p style="font-size: 18px;">Building with Danny is completely FREE! When you're ready to download your files and go live, there's a one-time payment of $50.</p>
-        <p style="font-size: 16px; color: #666; margin: 20px 0;">Your website and download link will be available for 3 days. We'll send you daily reminders if you need more time to decide!</p>
-        <button id="payment-btn" onclick="initiatePayment()">Download My Website ($50)</button>
-        <button class="secondary-btn" onclick="remindLater()" style="margin-top: 10px;">Remind Me Later</button>
+        <h2>Almost There!</h2>
+        <p style="font-size: 18px;">The design process with Danny is always free. When you're ready to go live, you can download all the website files and get your site published for a one-time payment of $50.</p>
+        <p style="font-size: 16px; color: #666; margin: 20px 0;">Your website files will be available for download for 3 days after payment.</p>
+        <button id="payment-btn" onclick="initiatePayment()">Proceed with Payment ($50)</button>
         <div id="payment-status"></div>
     </div>
 
@@ -723,9 +696,8 @@
             document.getElementById('form-section').classList.add('hidden');
             document.getElementById('chat-section').classList.remove('hidden');
 
-            // Scroll to chat section smoothly without jumping to top
-            const chatSection = document.getElementById('chat-section');
-            chatSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Scroll to chat
+            window.scrollTo({ top: 0, behavior: 'smooth' });
 
             // Initialize conversation with Danny
             await initializeConversation();
@@ -859,38 +831,9 @@ Hosting Preference: ${sessionData.wantHosting ? 'Wants free lifetime hosting' : 
         });
 
         async function approveDesign() {
-            // Save the session for checkout later
-            try {
-                const response = await fetch('/api/save-session', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email: sessionData.email,
-                        businessName: sessionData.businessName,
-                        siteHTML: sessionData.generatedSite,
-                        wantHosting: sessionData.wantHosting
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (response.ok) {
-                    sessionData.sessionId = data.sessionId;
-                }
-            } catch (error) {
-                console.error('Session save error:', error);
-            }
-
             document.getElementById('chat-section').classList.add('hidden');
             document.getElementById('payment-section').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        async function remindLater() {
-            document.getElementById('payment-status').innerHTML = '<p class="success">We\'ll send you a reminder email! Your site is saved for 3 days.</p>';
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 3000);
         }
 
         async function initiatePayment() {
