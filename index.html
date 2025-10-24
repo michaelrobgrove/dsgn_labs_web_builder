@@ -11,12 +11,26 @@
         body { margin: 0; padding: 0; }
         
         /* Header Section */
-        .header-section { 
-            text-align: center; 
-            padding: 60px 20px 40px; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
+.header-section {
+    color: white;
+    height: 100vh; /* Sets height to 100% of the viewport height */
+    
+    /* This creates the black overlay on top of the image */
+    background: linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)), url('DSGN_grey_back.jpg');
+    
+    /* These properties ensure your image covers the entire section */
+    background-size: cover;
+    background-position: center;
+    
+    /* These flex properties center your content vertically and horizontally */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    
+    /* Replaces original padding for better responsive control */
+    padding: 20px; 
+}
         .logo { 
             max-width: 600px; 
             width: 100%;
