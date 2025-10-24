@@ -5,24 +5,44 @@ import Stripe from 'stripe';
 export async function onRequestPost(context) {
     try {
         const { request, env } = context;
-        const { email, businessName, siteHTML, wantHosting } = await request.json();
+        const { sessionId, email, businessName, siteHTML, wantHosting } = await request.json();
 
-        if (!email || !businessName || !siteHTML) {
-            throw new Error('Missing required data');
+        // If sessionId provided, retrieve existing session data
+        let finalEmail, finalBusinessName, finalSiteHTML, finalWantHosting;
+
+        if (sessionId) {
+            const sessionDataObj = await env.SITE_STORAGE.get(`session/${sessionId}`);
+            if (!sessionDataObj) {
+                throw new Error('Session expired or not found');
+            }
+            const sessionData = JSON.parse(await sessionDataObj.text());
+            finalEmail = sessionData.email;
+            finalBusinessName = sessionData.businessName;
+            finalSiteHTML = sessionData.siteHTML;
+            finalWantHosting = sessionData.wantHosting;
+        } else {
+            // New checkout from main flow
+            if (!email || !businessName || !siteHTML) {
+                throw new Error('Missing required data');
+            }
+            finalEmail = email;
+            finalBusinessName = businessName;
+            finalSiteHTML = siteHTML;
+            finalWantHosting = wantHosting;
         }
 
         const stripe = new Stripe(env.STRIPE_SECRET_KEY);
 
         // Create checkout session
-        const session = await stripe.checkout.sessions.create({
+        const stripeSession = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
-            customer_email: email,
+            customer_email: finalEmail,
             line_items: [{
                 price_data: {
                     currency: 'usd',
                     product_data: {
                         name: 'Website Download + Lifetime Hosting',
-                        description: `For ${businessName} - ${wantHosting ? 'Includes free lifetime hosting' : 'Self-hosting option'}`,
+                        description: `For ${finalBusinessName} - ${finalWantHosting ? 'Includes free lifetime hosting' : 'Self-hosting option'}`,
                     },
                     unit_amount: 5000, // $50.00
                 },
@@ -30,29 +50,30 @@ export async function onRequestPost(context) {
             }],
             mode: 'payment',
             success_url: `${new URL(request.url).origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${new URL(request.url).origin}`,
+            cancel_url: sessionId ? `${new URL(request.url).origin}/checkout/${sessionId}` : `${new URL(request.url).origin}`,
             metadata: {
-                businessName,
-                email,
-                wantHosting: wantHosting.toString(),
-                siteHTML: siteHTML.substring(0, 500) // Stripe metadata limit
+                businessName: finalBusinessName,
+                email: finalEmail,
+                wantHosting: finalWantHosting.toString(),
+                originalSessionId: sessionId || '',
+                siteHTML: finalSiteHTML.substring(0, 500) // Stripe metadata limit
             }
         });
 
-        // Store the full site HTML with session ID for retrieval after payment
+        // Store the full site HTML with stripe session ID for retrieval after payment
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-        const fileName = `${businessName.replace(/[^a-zA-Z0-9]/g, '_')}-${timestamp}-${randomCode}`;
+        const fileName = `${finalBusinessName.replace(/[^a-zA-Z0-9]/g, '_')}-${timestamp}-${randomCode}`;
 
         // Store session data temporarily (will be converted to ZIP after payment)
         await env.SITE_STORAGE.put(
-            `pending/${session.id}.json`,
+            `pending/${stripeSession.id}.json`,
             JSON.stringify({
-                email,
-                businessName,
-                siteHTML,
+                email: finalEmail,
+                businessName: finalBusinessName,
+                siteHTML: finalSiteHTML,
                 fileName,
-                wantHosting,
+                wantHosting: finalWantHosting,
                 timestamp: Date.now(),
                 expiresAt: Date.now() + (3 * 24 * 60 * 60 * 1000) // 3 days from now
             }),
@@ -61,8 +82,13 @@ export async function onRequestPost(context) {
             }
         );
 
+        // If this was from a saved session, delete the reminder session
+        if (sessionId) {
+            await env.SITE_STORAGE.delete(`session/${sessionId}`);
+        }
+
         return new Response(JSON.stringify({
-            sessionId: session.id,
+            sessionId: stripeSession.id,
             publishableKey: env.STRIPE_PUBLISHABLE_KEY
         }), {
             headers: { 'Content-Type': 'application/json' }

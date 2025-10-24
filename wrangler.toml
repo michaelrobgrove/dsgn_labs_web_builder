@@ -18,3 +18,5 @@ id = "d8004e7bbb7c4a749b1eacaddfdfe4e9"
 # STRIPE_WEBHOOK_SECRET
 # RESEND_API_KEY
 # SITE_URL (e.g., https://web.yourdsgn.pro)
+[triggers]
+crons = ["0 2 * * *"]
