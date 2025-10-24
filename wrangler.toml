@@ -11,12 +11,5 @@ bucket_name = "dsgn-website-files"
 binding = "SITE_STORAGE"
 id = "d8004e7bbb7c4a749b1eacaddfdfe4e9"
 
-# Environment Variables (set these in Cloudflare Dashboard)
-# GEMINI_API_KEY
-# STRIPE_SECRET_KEY
-# STRIPE_PUBLISHABLE_KEY
-# STRIPE_WEBHOOK_SECRET
-# RESEND_API_KEY
-# SITE_URL (e.g., https://web.yourdsgn.pro)
 #[triggers]
 #crons = ["0 2 * * *"]
