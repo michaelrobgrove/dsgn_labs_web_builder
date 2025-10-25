@@ -49,7 +49,7 @@ export async function onRequestPost(context) {
                 quantity: 1,
             }],
             mode: 'payment',
-            success_url: `${new URL(request.url).origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+            success_url: `${new URL(request.url).origin}/success.html?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: sessionId ? `${new URL(request.url).origin}/checkout/${sessionId}` : `${new URL(request.url).origin}`,
             metadata: {
                 businessName: finalBusinessName,

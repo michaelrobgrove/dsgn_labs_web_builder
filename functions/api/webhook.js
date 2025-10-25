@@ -140,101 +140,276 @@ https://web.yourdsgn.pro`);
                 console.log('Deleted pending session from KV');
             }
 
-            // Send email with download link
+            // Prepare URLs
+            const successPageUrl = `${env.SITE_URL}/success.html?session_id=${session.id}`;
             const downloadUrl = `${env.SITE_URL}/download/${zipFileName}`;
-            console.log(`Download URL: ${downloadUrl}`);
-            
-            const emailHtml = siteData.wantHosting ? `
-                <h2>Congratulations! Your website is ready.</h2>
-                <p>Thank you for choosing DSGN LABS Web Builder!</p>
-                
-                <p><strong>Download your website files:</strong><br>
-                <a href="${downloadUrl}" style="display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 6px; margin: 10px 0;">Download Website Files</a></p>
-                
-                <p style="background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; border-radius: 4px;">
-                <strong>⏰ Important:</strong> Your download link will expire in 3 days. Please download your files soon!
-                </p>
-                
-                <p><strong>🌐 Free Lifetime Hosting - What's Next?</strong></p>
-                <ul>
-                    <li>Your website files are ready to download now</li>
-                    <li>We're setting up your free lifetime hosting</li>
-                    <li><strong>Within 3 business days</strong>, we'll send you another email with your live website URL</li>
-                    <li>No monthly fees, no renewal costs - hosting is free for life</li>
-                </ul>
-                
-                <p><strong>Need your files after 3 days?</strong><br>
-                No problem! Just reply to this email and we'll send you a new download link.</p>
-                
-                <p>Questions? Reply to this email or contact support@yourdsgn.pro</p>
-                
-                <p style="color: #666; font-size: 12px; margin-top: 30px;">
-                Built with ❤️ by DSGN LABS<br>
-                <a href="https://web.yourdsgn.pro">web.yourdsgn.pro</a>
-                </p>
-            ` : `
-                <h2>Congratulations! Your website is ready.</h2>
-                <p>Thank you for choosing DSGN LABS Web Builder!</p>
-                
-                <p><strong>Download your website files:</strong><br>
-                <a href="${downloadUrl}" style="display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 6px; margin: 10px 0;">Download Website Files</a></p>
-                
-                <p style="background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; border-radius: 4px;">
-                <strong>⏰ Important:</strong> Your download link will expire in 3 days. Please download your files soon!
-                </p>
-                
-                <p><strong>📦 What's Included:</strong></p>
-                <ul>
-                    <li>Complete website files (HTML, CSS, JavaScript)</li>
-                    <li>README.txt with deployment instructions</li>
-                    <li>Ready to upload to any hosting service</li>
-                </ul>
-                
-                <p><strong>🚀 Deployment Options:</strong></p>
-                <ul>
-                    <li><strong>Cloudflare Pages:</strong> Free, fast, and easy (recommended)</li>
-                    <li><strong>Netlify:</strong> Drag-and-drop deployment</li>
-                    <li><strong>Vercel:</strong> Great for modern sites</li>
-                    <li><strong>GitHub Pages:</strong> Free hosting from GitHub</li>
-                    <li><strong>Your own hosting:</strong> Upload via FTP to any web host</li>
-                </ul>
-                
-                <p>Detailed instructions are included in the README.txt file inside your download.</p>
-                
-                <p><strong>Need your files after 3 days?</strong><br>
-                No problem! Just reply to this email and we'll send you a new download link.</p>
-                
-                <p>Questions? Reply to this email or contact support@yourdsgn.pro</p>
-                
-                <p style="color: #666; font-size: 12px; margin-top: 30px;">
-                Built with ❤️ by DSGN LABS<br>
-                <a href="https://web.yourdsgn.pro">web.yourdsgn.pro</a>
-                </p>
+            const expirationDate = new Date(siteData.expiresAt).toLocaleDateString('en-US', { 
+                month: 'long', 
+                day: 'numeric', 
+                year: 'numeric' 
+            });
+
+            // Send customer email
+            console.log(`Sending customer email to: ${siteData.email}`);
+            const customerEmailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .email-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .logo-container {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .logo {
+            max-width: 200px;
+            height: auto;
+        }
+        h1 {
+            color: #6366f1;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        p {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .button {
+            display: inline-block;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .button:hover {
+            opacity: 0.9;
+        }
+        .info-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #6366f1;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .warning-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #666;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #6366f1;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="logo-container">
+            <img src="${env.SITE_URL}/DSGN.png" alt="DSGN LABS" class="logo">
+        </div>
+        
+        <h1>Your Website Files from DSGN LABS</h1>
+        
+        <p>Thank you for choosing DSGN LABS! Your website files are now available.</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="${successPageUrl}" class="button">📥 Go to Your Download Page</a>
+        </div>
+        
+        <div class="warning-box">
+            <strong>⏰ Important:</strong> For security, this download page will remain active for 3 days. After that the files will be deleted.
+        </div>
+        
+        ${siteData.wantHosting ? `
+        <div class="info-box">
+            <strong>🌐 Free Lifetime Hosting Included!</strong><br>
+            Your plan includes free lifetime hosting. We will send your live URL in a separate email within 3 business days.
+        </div>
+        ` : ''}
+        
+        <p style="margin-top: 30px;">If you have any questions or need assistance, simply reply to this email or contact us at <a href="mailto:support@yourdsgn.pro" style="color: #6366f1;">support@yourdsgn.pro</a></p>
+        
+        <div class="footer">
+            <p>Built with ❤️ by DSGN LABS<br>
+            <a href="https://web.yourdsgn.pro">web.yourdsgn.pro</a></p>
+        </div>
+    </div>
+</body>
+</html>
             `;
 
-            console.log(`Sending email to: ${siteData.email}`);
-            const emailResponse = await fetch('https://api.resend.com/emails', {
+            const customerEmailResponse = await fetch('https://api.resend.com/emails', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${env.RESEND_API_KEY}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    from: 'DSGN LABS <noreply@yourdsgn.pro>',
+                    from: 'Danny at DSGN LABS <danny@yourdsgn.pro>',
                     to: [siteData.email],
-                    subject: `Your ${siteData.businessName} Website is Ready! 🎉`,
-                    html: emailHtml
+                    subject: 'Your Website Files from DSGN LABS',
+                    html: customerEmailHtml
                 })
             });
 
-            const emailResult = await emailResponse.json();
+            const customerEmailResult = await customerEmailResponse.json();
             
-            if (!emailResponse.ok) {
-                console.error('Email send failed:', emailResult);
-                throw new Error(`Email failed: ${JSON.stringify(emailResult)}`);
+            if (!customerEmailResponse.ok) {
+                console.error('Customer email send failed:', customerEmailResult);
+                throw new Error(`Customer email failed: ${JSON.stringify(customerEmailResult)}`);
             }
 
-            console.log(`Email sent successfully. Email ID: ${emailResult.id}`);
+            console.log(`Customer email sent successfully. Email ID: ${customerEmailResult.id}`);
+
+            // Send admin notification email
+            console.log('Sending admin notification email...');
+            const adminEmailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        h2 {
+            color: #6366f1;
+            margin-bottom: 20px;
+        }
+        .info-row {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+        }
+        .label {
+            font-weight: 600;
+            color: #666;
+        }
+        .value {
+            color: #333;
+            margin-left: 10px;
+        }
+        a {
+            color: #6366f1;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>New DSGN Site Purchase</h2>
+        
+        <div class="info-row">
+            <span class="label">Business Name:</span>
+            <span class="value">${siteData.businessName}</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="label">Email:</span>
+            <span class="value">${siteData.email}</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="label">Download page:</span>
+            <span class="value"><a href="${successPageUrl}">${successPageUrl}</a></span>
+        </div>
+        
+        <div class="info-row">
+            <span class="label">Direct download:</span>
+            <span class="value"><a href="${downloadUrl}">${zipFileName}</a></span>
+        </div>
+        
+        <div class="info-row">
+            <span class="label">Deletion date (3 days):</span>
+            <span class="value">${expirationDate}</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="label">Wants hosting:</span>
+            <span class="value">${siteData.wantHosting ? 'Yes' : 'No'}</span>
+        </div>
+        
+        <div class="info-row">
+            <span class="label">Stripe Session ID:</span>
+            <span class="value">${session.id}</span>
+        </div>
+    </div>
+</body>
+</html>
+            `;
+
+            const adminEmailResponse = await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    from: 'DSGN LABS Notifications <notifications@yourdsgn.pro>',
+                    to: ['michael@yourdsgn.pro'],
+                    subject: 'New DSGN site',
+                    html: adminEmailHtml
+                })
+            });
+
+            const adminEmailResult = await adminEmailResponse.json();
+            
+            if (!adminEmailResponse.ok) {
+                console.error('Admin email send failed:', adminEmailResult);
+                // Don't throw error - customer email already sent successfully
+                console.log('Admin notification failed but continuing...');
+            } else {
+                console.log(`Admin email sent successfully. Email ID: ${adminEmailResult.id}`);
+            }
+
             console.log(`Payment processed for ${siteData.businessName}, hosting: ${siteData.wantHosting}`);
         }
 
