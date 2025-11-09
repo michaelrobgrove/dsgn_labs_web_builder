@@ -12,7 +12,6 @@ export async function onRequestPost(context) {
     const signature = request.headers.get('stripe-signature');
     const body = await request.text();
 
-    // Verify webhook signature (ASYNC for Cloudflare Workers)
     let event;
     try {
       event = await stripe.webhooks.constructEventAsync(
@@ -25,14 +24,12 @@ export async function onRequestPost(context) {
       return new Response(`Webhook signature verification failed: ${err.message}`, { status: 400 });
     }
 
-    // Only handle successful checkout completions
     if (event.type !== 'checkout.session.completed') {
       return new Response('Ignored', { status: 200 });
     }
 
     const session = event.data.object;
 
-    // Retrieve pending site data from KV (preferred)
     const pendingKey = `pending/${session.id}.json`;
     const siteDataStr = await env.SITE_STORAGE.get(pendingKey);
 
@@ -40,7 +37,6 @@ export async function onRequestPost(context) {
     if (siteDataStr) {
       siteData = JSON.parse(siteDataStr);
     } else {
-      // Fallback to metadata (may be truncated)
       if (!session.metadata || !session.metadata.siteHTML || !session.metadata.email || !session.metadata.businessName) {
         throw new Error('Missing required data to build site package');
       }
@@ -58,12 +54,10 @@ export async function onRequestPost(context) {
       };
     }
 
-    // Ensure HTML closes if truncated
     if (!siteData.siteHTML.includes('</html>')) {
       siteData.siteHTML += '\n</body>\n</html>';
     }
 
-    // Create ZIP
     const zip = new JSZip();
     zip.file('index.html', siteData.siteHTML);
     zip.file(
@@ -102,7 +96,6 @@ https://web.yourdsgn.pro`
     const zipBlob = await zip.generateAsync({ type: 'uint8array' });
     const zipFileName = `${siteData.fileName}.zip`;
 
-    // Store in R2 with metadata and 3-day info
     await env.WEBSITE_FILES.put(zipFileName, zipBlob, {
       httpMetadata: { contentType: 'application/zip' },
       customMetadata: {
@@ -113,19 +106,16 @@ https://web.yourdsgn.pro`
       }
     });
 
-    // Cleanup pending KV
     if (siteDataStr) {
       await env.SITE_STORAGE.delete(pendingKey);
     }
 
-    // Map session -> filename in KV for simple lookup from success page
     await env.SITE_STORAGE.put(
       `download/${session.id}`,
       zipFileName,
       { expirationTtl: Math.ceil((siteData.expiresAt - Date.now()) / 1000) }
     );
 
-    // Record generated site in D1 if we have a user
     const userId = siteData.userId || (session.metadata && session.metadata.userId) || null;
     if (userId && env.DB) {
       await insertGeneratedSite(env, {
@@ -136,7 +126,6 @@ https://web.yourdsgn.pro`
       });
     }
 
-    // Send email with download link (if RESEND configured)
     const siteUrl = env.SITE_URL || '';
     const downloadUrl = `${siteUrl}/download/${zipFileName}`;
     const successPageUrl = `${siteUrl}/success.html?session_id=${session.id}`;
@@ -149,7 +138,7 @@ https://web.yourdsgn.pro`
         <p style="background:#fff3cd;padding:12px;border-left:4px solid #ffc107;border-radius:6px;">Note: Your download link will remain available for 3 days.</p>
         ${siteData.wantHosting ? '<p>We\'re setting up your hosting and will email your live URL shortly.</p>' : ''}
         <p>Alternatively, visit your success page: <a href="${successPageUrl}">${successPageUrl}</a></p>
-        <p style="color:#666;font-size:12px;margin-top:24px;">Built with DSGN LABS Web Builder — web.yourdsgn.pro</p>
+        <p style="color:#666;font-size:12px;margin-top:24px;">Built with DSGN LABS Web Builder - web.yourdsgn.pro</p>
       `;
 
       await fetch('https://api.resend.com/emails', {
@@ -173,31 +162,6 @@ https://web.yourdsgn.pro`
     return new Response(`Error: ${error.message}`, { status: 500 });
   }
 }
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 16px;
-            margin: 20px 0;
-            text-align: center;
-        }
-        .button:hover {
-            opacity: 0.9;
-        }
-        .info-box {
-            background-color: #f8f9fa;
-            border-left: 4px solid #6366f1;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        .warning-box {
-            background-color: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        .footer {
             text-align: center;
             margin-top: 30px;
             padding-top: 20px;

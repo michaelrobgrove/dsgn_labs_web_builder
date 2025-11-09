@@ -6,7 +6,7 @@ import { getUserFromRequest } from '../lib/auth.js';
 export async function onRequestPost(context) {
     try {
         const { request, env } = context;
-        const user = getUserFromRequest(request);
+        const user = await getUserFromRequest(request, env);
         const { sessionId, email, businessName, siteHTML, wantHosting } = await request.json();
 
         // If sessionId provided, retrieve existing session data

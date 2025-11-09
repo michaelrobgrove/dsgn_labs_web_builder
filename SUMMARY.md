@@ -184,3 +184,29 @@ This section documents current progress, how the plan is being executed, and con
 - Security model: decide between org token (centralized repos) or per‑user GitHub OAuth for user‑owned repos.
 
 This progress section will continue to be updated as we implement JWT verification, enforce auth gating, add scheduling, and deliver automated GitHub + Cloudflare deployment.
+
+## Progress Update (Auth + Webhook + UI cleanup)
+
+Actions performed
+- Implemented JWKS-based JWT verification in unctions/lib/auth.js with issuer/audience checks and key caching.
+- Updated API handlers to use verified auth: unctions/api/chat.js, unctions/api/create-checkout.js, unctions/api/me.js, unctions/api/user-sessions.js.
+- Cleaned and fixed unctions/api/webhook.js (removed corrupted appended HTML/CSS, preserved Stripe signature verification, ZIP packaging to R2, KV mappings, D1 insert, and customer email via Resend).
+- Rewrote success.html to remove mojibake and duplicated blocks; kept the download flow intact via /api/get-download.
+
+Configuration requirements
+- Cloudflare Pages env vars:
+  - AUTH0_DOMAIN, AUTH0_CLIENT_ID, (optional) AUTH0_CLIENT_SECRET, AUTH0_REDIRECT_URI`n  - STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_WEBHOOK_SECRET`n  - GEMINI_API_KEY, SITE_URL (public origin used in links)
+  - (optional) RESEND_API_KEY for purchase emails
+- Bindings in Pages project:
+  - KV: SITE_STORAGE`n  - R2: WEBSITE_FILES`n  - D1: DB (ensure database is created and bound)
+
+Risks / concerns
+- Auth0 tokens now require valid signature/issuer/audience; local testing must have correct Auth0 config or /api/me et al. will return 401.
+- wrangler.toml has a placeholder database_id for D1; set in local dev or configure binding in Pages before running dashboard features.
+- Stripe webhook must point to /api/webhook in the production domain and use the matching STRIPE_WEBHOOK_SECRET.
+
+Next steps
+- Verify end-to-end in Stripe test mode: build ? checkout ? webhook creates ZIP in R2 ? success page download works.
+- Extend auth gating where needed (e.g., enforce login before persisting sessions if desired).
+- Optional: add Content Security Policy headers to HTML routes and normalize JSON error shapes across APIs.
+

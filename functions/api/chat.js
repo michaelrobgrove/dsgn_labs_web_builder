@@ -86,7 +86,7 @@ import { saveChatSession } from '../lib/db.js';
 export async function onRequestPost(context) {
     try {
         const { request, env } = context;
-        const user = getUserFromRequest(request);
+        const user = await getUserFromRequest(request, env);
         const { type, message, sessionData } = await request.json();
 
         const conversationHistory = sessionData.conversationHistory || [];
