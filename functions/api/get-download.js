@@ -32,12 +32,19 @@ export async function onRequestGet(context) {
             });
         }
 
-        // Find the file in R2 using metadata
-        const listed = await env.WEBSITE_FILES.list();
-        const fileObj = listed.objects.find(obj => {
-            // Files are stored with metadata including stripeSessionId
-            return obj.key.includes(session.metadata.businessName.replace(/[^a-zA-Z0-9]/g, '_'));
-        });
+        // First, try KV mapping created by webhook
+        let fileKey = await env.SITE_STORAGE.get(`download/${sessionId}`);
+        let fileObj = null;
+
+        if (fileKey) {
+            fileObj = { key: fileKey };
+        } else {
+            // Fallback: list and match by sanitized business name (best-effort)
+            const listed = await env.WEBSITE_FILES.list();
+            fileObj = listed.objects.find(obj => {
+                return obj.key.includes(session.metadata.businessName.replace(/[^a-zA-Z0-9]/g, '_'));
+            });
+        }
 
         if (!fileObj) {
             return new Response(JSON.stringify({

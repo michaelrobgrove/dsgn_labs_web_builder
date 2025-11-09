@@ -1,0 +1,171 @@
+// /functions/checkout/[sessionId].js
+// Displays saved site preview + payment option (HTML response)
+
+export async function onRequestGet(context) {
+  try {
+    const { params, env } = context;
+    const sessionId = params.sessionId;
+
+    const sessionDataObj = await env.SITE_STORAGE.get(`session/${sessionId}`);
+    if (!sessionDataObj) {
+      return new Response(generateErrorPage('Session not found or expired'), {
+        headers: { 'Content-Type': 'text/html' }
+      });
+    }
+
+    const sessionData = JSON.parse(await sessionDataObj.text());
+
+    if (Date.now() > sessionData.expiresAt) {
+      await env.SITE_STORAGE.delete(`session/${sessionId}`);
+      return new Response(
+        generateErrorPage('This session has expired. Please create a new website.'),
+        { headers: { 'Content-Type': 'text/html' } }
+      );
+    }
+
+    const daysLeft = Math.ceil((sessionData.expiresAt - Date.now()) / (1000 * 60 * 60 * 24));
+
+    return new Response(generateCheckoutPage(sessionData, sessionId, daysLeft), {
+      headers: { 'Content-Type': 'text/html' }
+    });
+  } catch (error) {
+    return new Response(generateErrorPage(`Error: ${error.message}`), {
+      status: 500,
+      headers: { 'Content-Type': 'text/html' }
+    });
+  }
+}
+
+function escapeHtmlAttr(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function generateCheckoutPage(sessionData, sessionId, daysLeft) {
+  const safeBusiness = escapeHtmlAttr(sessionData.businessName);
+  const safeEmail = escapeHtmlAttr(sessionData.email || '');
+  const iframeSrcdoc = sessionData.siteHTML.replace(/"/g, '&quot;');
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete Your Purchase - ${safeBusiness}</title>
+  <link rel="stylesheet" href="https://convert.yourdsgn.pro/dsgn-style.css">
+  <style>
+    body { max-width: 1400px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; }
+    .header { text-align: center; margin-bottom: 40px; }
+    .logo { max-width: 300px; margin-bottom: 20px; }
+    .content-grid { display: grid; grid-template-columns: 1fr 400px; gap: 30px; margin-top: 30px; }
+    .preview-section iframe { width: 100%; height: 700px; border: 2px solid #ddd; border-radius: 8px; }
+    .checkout-sidebar { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); position: sticky; top: 20px; }
+    .price { font-size: 48px; font-weight: 700; color: #667eea; margin: 20px 0; }
+    .timer { background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; border-radius: 4px; margin: 20px 0; }
+    button { width: 100%; padding: 16px; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer; margin: 10px 0; }
+    button:hover { background: #5568d3; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    ul { list-style: disc; padding-left: 20px; margin: 20px 0; }
+    @media (max-width: 968px) { .content-grid { grid-template-columns: 1fr; } .checkout-sidebar { position: relative; } }
+  </style>
+  <script src="https://js.stripe.com/v3/"></script>
+  <script>
+    async function checkout() {
+      try {
+        const btn = document.getElementById('checkout-btn');
+        const status = document.getElementById('status');
+        btn.disabled = true;
+        status.innerHTML = '<p style="color:#667eea;">Processing...</p>';
+
+        const response = await fetch('/api/create-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId: '${sessionId}',
+            email: '${safeEmail}',
+            businessName: '${safeBusiness}',
+            siteHTML: ``,
+            wantHosting: ${sessionData.wantHosting}
+          })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Payment failed');
+
+        const stripe = Stripe(data.publishableKey);
+        await stripe.redirectToCheckout({ sessionId: data.sessionId });
+      } catch (error) {
+        const status = document.getElementById('status');
+        status.innerHTML = '<p style="color:#dc3545;">' + (error.message || 'Payment failed') + '</p>';
+        const btn = document.getElementById('checkout-btn');
+        btn.disabled = false;
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="header">
+    <img src="/DSGN.png" alt="DSGN LABS" class="logo">
+    <h1>Your ${safeBusiness} Website is Ready!</h1>
+    <p>Review your site and complete your purchase below</p>
+  </div>
+
+  <div class="content-grid">
+    <div class="preview-section">
+      <h2>Your Website Preview</h2>
+      <iframe id="preview-frame" srcdoc="${iframeSrcdoc}"></iframe>
+    </div>
+
+    <div class="checkout-sidebar">
+      <h3>Complete Your Purchase</h3>
+      <div class="price">$50</div>
+      <p style="margin:0;color:#666;">One-time payment</p>
+      <div class="timer">
+        <strong>${daysLeft} day${daysLeft !== 1 ? 's' : ''} remaining</strong><br>
+        Your website is saved until then
+      </div>
+      <ul>
+        <li>Download all website files</li>
+        <li>${sessionData.wantHosting ? 'Free lifetime hosting' : 'Self-hosting support'}</li>
+        <li>Full ownership & rights</li>
+        <li>Email support</li>
+      </ul>
+      <button id="checkout-btn" onclick="checkout()">Download My Website ($50)</button>
+      <button style="background:#6c757d;" onclick="window.location.href='/'">Build Another Site</button>
+      <p style="font-size:14px;color:#666;margin-top:20px;text-align:center;">Download link expires 3 days after purchase</p>
+      <div id="status"></div>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+function generateErrorPage(message) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session Error - DSGN LABS</title>
+  <link rel="stylesheet" href="https://convert.yourdsgn.pro/dsgn-style.css">
+  <style>
+    body { max-width: 600px; margin: 100px auto; padding: 40px; text-align: center; font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; }
+    .logo { max-width: 300px; margin-bottom: 30px; }
+    .error-box { background: #fff3cd; padding: 30px; border-left: 4px solid #ffc107; border-radius: 8px; margin: 30px 0; }
+    button { padding: 14px 32px; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; }
+    button:hover { background: #5568d3; }
+  </style>
+</head>
+<body>
+  <img src="/DSGN.png" alt="DSGN LABS" class="logo">
+  <h1>Oops!</h1>
+  <div class="error-box">
+    <p style="margin:0;font-size:18px;">${message}</p>
+  </div>
+  <button onclick="window.location.href='/'">Start Over</button>
+</body>
+</html>`;
+}
+

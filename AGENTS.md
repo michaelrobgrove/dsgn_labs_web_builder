@@ -32,3 +32,6 @@ Notes: Ensure Cloudflare credentials are configured (`wrangler login`) and requi
 - Storage bindings (see `wrangler.toml`): KV `SITE_STORAGE`, R2 `WEBSITE_FILES`. Ensure these exist in your Cloudflare project before `dev`/`deploy`.
 - Validate and sanitize all request input; enforce method checks in handlers.
 
+## Agent Operating Notes
+- Before doing anything, agents must read `SUMMARY.md` for the live plan/status and `AGENTS.md` for conventions.
+- See `claude.md` for step‑by‑step agent guidance (context load order, security checklist, and how to update `SUMMARY.md`).

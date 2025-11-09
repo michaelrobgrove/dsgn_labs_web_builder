@@ -11,5 +11,13 @@ bucket_name = "dsgn-website-files"
 binding = "SITE_STORAGE"
 id = "d8004e7bbb7c4a749b1eacaddfdfe4e9"
 
+## D1 Database (configure in your Pages project and update IDs for local dev)
+[[d1_databases]]
+binding = "DB"
+database_name = "dsgn-web-builder"
+# For local dev with Wrangler, set your database_id here.
+# For Cloudflare Pages, configure the D1 binding in project settings.
+database_id = "REPLACE_WITH_D1_ID"
+
 #[triggers]
 #crons = ["0 2 * * *"]

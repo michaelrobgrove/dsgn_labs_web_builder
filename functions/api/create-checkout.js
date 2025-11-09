@@ -1,10 +1,12 @@
 // /functions/api/create-checkout.js
 
 import Stripe from 'stripe';
+import { getUserFromRequest } from '../lib/auth.js';
 
 export async function onRequestPost(context) {
     try {
         const { request, env } = context;
+        const user = getUserFromRequest(request);
         const { sessionId, email, businessName, siteHTML, wantHosting } = await request.json();
 
         // If sessionId provided, retrieve existing session data
@@ -44,7 +46,8 @@ export async function onRequestPost(context) {
                         name: 'Website Download + Lifetime Hosting',
                         description: `For ${finalBusinessName} - ${finalWantHosting ? 'Includes free lifetime hosting' : 'Self-hosting option'}`,
                     },
-                    unit_amount: 50, // $50.00
+                    // Amounts are in cents; set to $50.00
+                    unit_amount: 5000,
                 },
                 quantity: 1,
             }],
@@ -55,6 +58,7 @@ export async function onRequestPost(context) {
                 businessName: finalBusinessName,
                 email: finalEmail,
                 wantHosting: finalWantHosting.toString(),
+                userId: user?.sub || '',
                 originalSessionId: sessionId || '',
                 siteHTML: finalSiteHTML.substring(0, 500) // Stripe metadata limit
             }
@@ -74,6 +78,7 @@ export async function onRequestPost(context) {
                 siteHTML: finalSiteHTML,
                 fileName,
                 wantHosting: finalWantHosting,
+                userId: user?.sub || null,
                 timestamp: Date.now(),
                 expiresAt: Date.now() + (3 * 24 * 60 * 60 * 1000) // 3 days from now
             }),

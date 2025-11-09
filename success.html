@@ -321,13 +321,13 @@
                 // Redirect to download
                 window.location.href = data.downloadUrl;
                 
-                statusDiv.innerHTML = '<p class="success-msg">✓ Download started! Check your downloads folder.</p>';
-                downloadBtn.textContent = '📥 Download Again';
+                statusDiv.innerHTML = '<p class="success-msg">Download started! Check your downloads folder.</p>';
+                downloadBtn.textContent = 'Download Again';
                 downloadBtn.disabled = false;
 
             } catch (error) {
                 statusDiv.innerHTML = `<p class="error">Error: ${error.message}</p>`;
-                downloadBtn.textContent = '📥 Try Again';
+                downloadBtn.textContent = 'Try Again';
                 downloadBtn.disabled = false;
             }
         }

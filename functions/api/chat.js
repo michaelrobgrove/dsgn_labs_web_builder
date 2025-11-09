@@ -80,9 +80,13 @@ How does that sound for a start? We can tweak anything you'd like!
 
 Iterate: The user will give you feedback (e.g., "Can you center the logo?"). You will accept the feedback, regenerate the COMPLETE HTML with changes, and present it again with [SITE_CODE_START] and [SITE_CODE_END] tags.`;
 
+import { getUserFromRequest } from '../lib/auth.js';
+import { saveChatSession } from '../lib/db.js';
+
 export async function onRequestPost(context) {
     try {
         const { request, env } = context;
+        const user = getUserFromRequest(request);
         const { type, message, sessionData } = await request.json();
 
         const conversationHistory = sessionData.conversationHistory || [];
@@ -153,10 +157,24 @@ export async function onRequestPost(context) {
             { role: 'model', text: dannyResponse }
         );
 
+        // Persist chat session for authenticated users
+        let chatId = sessionData?.chatId;
+        if (user && env.DB) {
+            if (!chatId) {
+                chatId = Math.random().toString(36).slice(2, 10).toUpperCase();
+            }
+            await saveChatSession(env, {
+                id: chatId,
+                userId: user.sub,
+                data: { conversationHistory, lastType: type, lastUpdated: Date.now() }
+            });
+        }
+
         return new Response(JSON.stringify({
             response: dannyResponse.replace(/\[SITE_CODE_START\][\s\S]*?\[SITE_CODE_END\]/g, '').trim(),
             siteHTML,
-            conversationHistory
+            conversationHistory,
+            chatId
         }), {
             headers: { 'Content-Type': 'application/json' }
         });

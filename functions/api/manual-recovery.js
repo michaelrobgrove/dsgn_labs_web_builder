@@ -112,7 +112,7 @@ https://web.yourdsgn.pro`);
             <p>Questions? Reply to this email or contact support@yourdsgn.pro</p>
             
             <p style="color: #666; font-size: 12px; margin-top: 30px;">
-            Built with ❤️ by DSGN LABS<br>
+            Built with DSGN LABS Web Builder<br>
             <a href="https://web.yourdsgn.pro">web.yourdsgn.pro</a>
             </p>
         `;

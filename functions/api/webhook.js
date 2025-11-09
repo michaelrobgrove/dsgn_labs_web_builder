@@ -2,202 +2,177 @@
 
 import Stripe from 'stripe';
 import JSZip from 'jszip';
+import { insertGeneratedSite } from '../lib/db.js';
 
 export async function onRequestPost(context) {
+  try {
+    const { request, env } = context;
+    const stripe = new Stripe(env.STRIPE_SECRET_KEY);
+
+    const signature = request.headers.get('stripe-signature');
+    const body = await request.text();
+
+    // Verify webhook signature (ASYNC for Cloudflare Workers)
+    let event;
     try {
-        const { request, env } = context;
-        const stripe = new Stripe(env.STRIPE_SECRET_KEY);
-        
-        const signature = request.headers.get('stripe-signature');
-        const body = await request.text();
+      event = await stripe.webhooks.constructEventAsync(
+        body,
+        signature,
+        env.STRIPE_WEBHOOK_SECRET
+      );
+    } catch (err) {
+      console.error('Webhook signature verification failed:', err.message);
+      return new Response(`Webhook signature verification failed: ${err.message}`, { status: 400 });
+    }
 
-        // Verify webhook signature (ASYNC for Cloudflare Workers)
-        let event;
-        try {
-            event = await stripe.webhooks.constructEventAsync(
-                body,
-                signature,
-                env.STRIPE_WEBHOOK_SECRET
-            );
-        } catch (err) {
-            console.error('Webhook signature verification failed:', err.message);
-            return new Response(`Webhook signature verification failed: ${err.message}`, { status: 400 });
-        }
+    // Only handle successful checkout completions
+    if (event.type !== 'checkout.session.completed') {
+      return new Response('Ignored', { status: 200 });
+    }
 
-        console.log(`Webhook received: ${event.type}`);
+    const session = event.data.object;
 
-        // Handle successful payment
-        if (event.type === 'checkout.session.completed') {
-            const session = event.data.object;
-            
-            console.log(`Processing payment for session: ${session.id}`);
-            console.log(`Customer email: ${session.customer_email}`);
-            console.log(`Metadata:`, session.metadata);
+    // Retrieve pending site data from KV (preferred)
+    const pendingKey = `pending/${session.id}.json`;
+    const siteDataStr = await env.SITE_STORAGE.get(pendingKey);
 
-            // Try to retrieve stored site data from KV
-            let siteData;
-            const siteDataStr = await env.SITE_STORAGE.get(`pending/${session.id}.json`);
-            
-            if (siteDataStr) {
-                console.log('Found site data in KV storage');
-                siteData = JSON.parse(siteDataStr);
-            } else {
-                // Fallback: reconstruct from metadata if KV data is missing
-                console.log('Site data not found in KV, reconstructing from metadata');
-                
-                if (!session.metadata.siteHTML || !session.metadata.email || !session.metadata.businessName) {
-                    throw new Error('Missing required data in session metadata');
-                }
-                
-                // Reconstruct site data from metadata
-                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-                const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-                const fileName = `${session.metadata.businessName.replace(/[^a-zA-Z0-9]/g, '_')}-${timestamp}-${randomCode}`;
-                
-                siteData = {
-                    email: session.metadata.email,
-                    businessName: session.metadata.businessName,
-                    siteHTML: session.metadata.siteHTML, // This might be truncated!
-                    fileName,
-                    wantHosting: session.metadata.wantHosting === 'true',
-                    timestamp: Date.now(),
-                    expiresAt: Date.now() + (3 * 24 * 60 * 60 * 1000)
-                };
-                
-                console.log('Reconstructed site data:', { 
-                    fileName: siteData.fileName, 
-                    email: siteData.email,
-                    htmlLength: siteData.siteHTML.length 
-                });
-            }
+    let siteData;
+    if (siteDataStr) {
+      siteData = JSON.parse(siteDataStr);
+    } else {
+      // Fallback to metadata (may be truncated)
+      if (!session.metadata || !session.metadata.siteHTML || !session.metadata.email || !session.metadata.businessName) {
+        throw new Error('Missing required data to build site package');
+      }
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const fileName = `${session.metadata.businessName.replace(/[^a-zA-Z0-9]/g, '_')}-${timestamp}-${randomCode}`;
+      siteData = {
+        email: session.metadata.email,
+        businessName: session.metadata.businessName,
+        siteHTML: session.metadata.siteHTML,
+        fileName,
+        wantHosting: session.metadata.wantHosting === 'true',
+        timestamp: Date.now(),
+        expiresAt: Date.now() + (3 * 24 * 60 * 60 * 1000)
+      };
+    }
 
-            // Check if HTML seems complete
-            if (!siteData.siteHTML.includes('</html>')) {
-                console.error('WARNING: HTML appears truncated!');
-                // Try to close the HTML properly
-                siteData.siteHTML += '\n</body>\n</html>';
-            }
+    // Ensure HTML closes if truncated
+    if (!siteData.siteHTML.includes('</html>')) {
+      siteData.siteHTML += '\n</body>\n</html>';
+    }
 
-            // Create ZIP file
-            console.log('Creating ZIP file...');
-            const zip = new JSZip();
-            zip.file('index.html', siteData.siteHTML);
-            zip.file('README.txt', `Website for ${siteData.businessName}
+    // Create ZIP
+    const zip = new JSZip();
+    zip.file('index.html', siteData.siteHTML);
+    zip.file(
+      'README.txt',
+      `Website for ${siteData.businessName}
 
 Your website is ready to deploy!
 
-${siteData.wantHosting ? `FREE LIFETIME HOSTING:
-Your website will be live within 3 business days. We'll send you the URL via email once it's ready.
+${siteData.wantHosting ? `HOSTING:
+If you selected hosting, we'll set it up and email your live URL.
 
 ` : ''}TO SELF-HOST:
-Your website can be deployed to any static hosting service:
+This static site can be deployed to many providers.
 
-Option 1 - Cloudflare Pages (Recommended):
+Cloudflare Pages (Recommended):
 1. Go to https://pages.cloudflare.com
 2. Create a new project
 3. Upload this folder
-4. Your site will be live in minutes!
 
-Option 2 - Other Hosting:
-- Netlify: Drag and drop to https://app.netlify.com/drop
-- Vercel: Use their CLI or web interface
-- GitHub Pages: Push to a repository
-- Any web host: Upload via FTP
+Other options:
+- Netlify: https://app.netlify.com/drop
+- Vercel: via CLI or dashboard
+- GitHub Pages: push to a repository
+- Any web host: upload index.html
 
-DOWNLOAD LINK EXPIRES:
-Your download link will be available for 3 days from payment date.
-After that, please contact support if you need the files again.
+DOWNLOAD AVAILABILITY:
+Your download is available for 3 days.
+If it expires, contact support.
 
-Need help? Contact support@yourdsgn.pro
+Support: support@yourdsgn.pro
 
 Built with DSGN LABS Web Builder
-https://web.yourdsgn.pro`);
+https://web.yourdsgn.pro`
+    );
 
-            const zipBlob = await zip.generateAsync({ type: 'uint8array' });
-            console.log(`ZIP file created: ${zipBlob.length} bytes`);
+    const zipBlob = await zip.generateAsync({ type: 'uint8array' });
+    const zipFileName = `${siteData.fileName}.zip`;
 
-            // Store ZIP in R2 with 3-day expiration
-            const zipFileName = `${siteData.fileName}.zip`;
-            console.log(`Storing in R2: ${zipFileName}`);
-            
-            await env.WEBSITE_FILES.put(zipFileName, zipBlob, {
-                httpMetadata: {
-                    contentType: 'application/zip'
-                },
-                customMetadata: {
-                    email: siteData.email,
-                    businessName: siteData.businessName,
-                    expiresAt: siteData.expiresAt.toString(),
-                    stripeSessionId: session.id
-                }
-            });
+    // Store in R2 with metadata and 3-day info
+    await env.WEBSITE_FILES.put(zipFileName, zipBlob, {
+      httpMetadata: { contentType: 'application/zip' },
+      customMetadata: {
+        email: siteData.email,
+        businessName: siteData.businessName,
+        expiresAt: siteData.expiresAt.toString(),
+        stripeSessionId: session.id
+      }
+    });
 
-            console.log('ZIP file stored successfully in R2');
+    // Cleanup pending KV
+    if (siteDataStr) {
+      await env.SITE_STORAGE.delete(pendingKey);
+    }
 
-            // Delete pending data from KV if it exists
-            if (siteDataStr) {
-                await env.SITE_STORAGE.delete(`pending/${session.id}.json`);
-                console.log('Deleted pending session from KV');
-            }
+    // Map session -> filename in KV for simple lookup from success page
+    await env.SITE_STORAGE.put(
+      `download/${session.id}`,
+      zipFileName,
+      { expirationTtl: Math.ceil((siteData.expiresAt - Date.now()) / 1000) }
+    );
 
-            // Prepare URLs
-            const successPageUrl = `${env.SITE_URL}/success.html?session_id=${session.id}`;
-            const downloadUrl = `${env.SITE_URL}/download/${zipFileName}`;
-            const expirationDate = new Date(siteData.expiresAt).toLocaleDateString('en-US', { 
-                month: 'long', 
-                day: 'numeric', 
-                year: 'numeric' 
-            });
+    // Record generated site in D1 if we have a user
+    const userId = siteData.userId || (session.metadata && session.metadata.userId) || null;
+    if (userId && env.DB) {
+      await insertGeneratedSite(env, {
+        id: session.id,
+        userId,
+        businessName: siteData.businessName,
+        fileName: zipFileName
+      });
+    }
 
-            // Send customer email
-            console.log(`Sending customer email to: ${siteData.email}`);
-            const customerEmailHtml = `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .email-container {
-            background-color: #ffffff;
-            border-radius: 12px;
-            padding: 40px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        .logo-container {
-            text-align: center;
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-        .logo {
-            max-width: 200px;
-            height: auto;
-        }
-        h1 {
-            color: #6366f1;
-            margin-bottom: 20px;
-            font-size: 28px;
-        }
-        p {
-            margin-bottom: 15px;
-            color: #333;
-        }
-        .button {
-            display: inline-block;
-            padding: 16px 32px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #ffffff;
+    // Send email with download link (if RESEND configured)
+    const siteUrl = env.SITE_URL || '';
+    const downloadUrl = `${siteUrl}/download/${zipFileName}`;
+    const successPageUrl = `${siteUrl}/success.html?session_id=${session.id}`;
+
+    if (env.RESEND_API_KEY) {
+      const emailHtml = `
+        <h2>Your ${siteData.businessName} Website Files Are Ready</h2>
+        <p>Thanks for your purchase. Your website package is ready to download.</p>
+        <p><a href="${downloadUrl}" style="display:inline-block;padding:12px 20px;background:#6366f1;color:#fff;border-radius:8px;text-decoration:none;">Download Website Files</a></p>
+        <p style="background:#fff3cd;padding:12px;border-left:4px solid #ffc107;border-radius:6px;">Note: Your download link will remain available for 3 days.</p>
+        ${siteData.wantHosting ? '<p>We\'re setting up your hosting and will email your live URL shortly.</p>' : ''}
+        <p>Alternatively, visit your success page: <a href="${successPageUrl}">${successPageUrl}</a></p>
+        <p style="color:#666;font-size:12px;margin-top:24px;">Built with DSGN LABS Web Builder — web.yourdsgn.pro</p>
+      `;
+
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: 'DSGN LABS <noreply@yourdsgn.pro>',
+          to: [siteData.email],
+          subject: `Your ${siteData.businessName} Website Files Are Ready`,
+          html: emailHtml
+        })
+      });
+    }
+
+    return new Response('OK', { status: 200 });
+  } catch (error) {
+    console.error('Webhook error:', error);
+    return new Response(`Error: ${error.message}`, { status: 500 });
+  }
+}
             text-decoration: none;
             border-radius: 8px;
             font-weight: 600;
