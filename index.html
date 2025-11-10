@@ -19,7 +19,7 @@
             --border: #27272a;
             --accent: #22d3ee;
             --success: #10b981;
-            --price: 0.50; /* CHANGE THIS TO 50 FOR PRODUCTION */
+            --price: 50; /* PRODUCTION PRICE */
         }
 
         * {
@@ -36,12 +36,10 @@
             overflow-x: hidden;
         }
 
-        /* Smooth scroll */
         html {
             scroll-behavior: smooth;
         }
 
-        /* Navigation */
         nav {
             position: fixed;
             top: 0;
@@ -97,7 +95,6 @@
             transform: translateY(-2px);
         }
 
-        /* Hero Section */
         .hero {
             min-height: 100vh;
             display: flex;
@@ -198,7 +195,6 @@
             border-color: var(--primary);
         }
 
-        /* Feature Grid */
         .features {
             padding: 6rem 2rem;
             max-width: 1400px;
@@ -272,7 +268,6 @@
             line-height: 1.7;
         }
 
-        /* Pricing Section */
         .pricing {
             padding: 6rem 2rem;
             background: var(--bg-elevated);
@@ -345,7 +340,6 @@
             font-size: 1.2rem;
         }
 
-        /* Form Section */
         .form-section {
             padding: 6rem 2rem;
             max-width: 900px;
@@ -417,7 +411,6 @@
             cursor: pointer;
         }
 
-        /* Chat Section */
         .chat-section {
             display: flex;
             gap: 2rem;
@@ -517,7 +510,6 @@
             background: white;
         }
 
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -569,7 +561,6 @@
             max-width: 60%;
         }
 
-        /* Utilities */
         .hidden {
             display: none !important;
         }
@@ -586,7 +577,6 @@
             font-weight: 600;
         }
 
-        /* Animations */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -603,7 +593,6 @@
             to { opacity: 1; }
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
@@ -634,7 +623,6 @@
     </style>
 </head>
 <body>
-    <!-- Navigation -->
     <nav>
         <div class="nav-content">
             <img src="/DSGN.png" alt="DSGN LABS" class="logo-nav">
@@ -648,7 +636,6 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
             <div class="hero-badge"><span>✨</span> AI-Powered Website Creation</div>
@@ -658,14 +645,11 @@
             </p>
             <div class="hero-buttons">
                 <a href="#get-started" class="btn btn-primary">Start Building Free →</a>
-                <a href="#features" class="btn btn-secondary">
-                    See How It Works
-                </a>
+                <a href="#features" class="btn btn-secondary">See How It Works</a>
             </div>
         </div>
     </section>
 
-    <!-- Features Section -->
     <section class="features" id="features">
         <div class="section-header">
             <div class="section-label">Why Choose DSGN LABS</div>
@@ -714,7 +698,6 @@
         </div>
     </section>
 
-    <!-- Pricing Section -->
     <section class="pricing" id="pricing">
         <div class="pricing-container">
             <div class="section-header">
@@ -729,7 +712,7 @@
                 <div class="pricing-badge">Most Popular</div>
                 <div class="pricing-header">
                     <h3>Complete Website</h3>
-                    <div class="price">$0.50</div>
+                    <div class="price">$50</div>
                     <p class="price-description">One-time payment • No recurring fees</p>
                 </div>
 
@@ -751,7 +734,6 @@
         </div>
     </section>
 
-    <!-- Form Section -->
     <section class="form-section" id="get-started">
         <div class="section-header">
             <div class="section-label">Get Started</div>
@@ -803,7 +785,6 @@
         </div>
     </section>
 
-    <!-- Chat Section -->
     <div id="chat-section" class="chat-section hidden">
         <div class="chat-container">
             <h3>Chat with Danny</h3>
@@ -827,7 +808,6 @@
         </div>
     </div>
 
-    <!-- Fullscreen Modal -->
     <div id="fullscreen-modal" class="modal">
         <button class="modal-close" onclick="closeFullscreen()">Close Preview</button>
         <div class="modal-content">
@@ -836,7 +816,6 @@
         </div>
     </div>
 
-    <!-- Payment Section -->
     <div id="payment-section" class="form-section hidden">
         <div class="section-header">
             <h2 class="section-title">Almost There!</h2>
@@ -848,7 +827,7 @@
         <div class="pricing-card" style="max-width: 600px; margin: 0 auto;">
             <div class="pricing-header">
                 <h3>Your Website is Ready</h3>
-                <div class="price">$0.50</div>
+                <div class="price">$50</div>
                 <p class="price-description">One-time payment</p>
             </div>
 
@@ -860,7 +839,7 @@
             </ul>
 
             <button id="payment-btn" class="btn btn-primary" onclick="initiatePayment()" style="width: 100%; justify-content: center; margin-top: 1rem;">
-                Complete Payment ($0.50) →
+                Complete Payment ($50) →
             </button>
             <div id="payment-status"></div>
         </div>
@@ -868,7 +847,6 @@
 
     <script src="https://js.stripe.com/v3/"></script>
     <script>
-        // Session data
         let sessionData = {
             email: '',
             businessName: '',
@@ -883,7 +861,6 @@
             siteVersion: 0
         };
 
-        // Start building
         async function startBuilding() {
             const email = document.getElementById('email').value.trim();
             const businessName = document.getElementById('businessName').value.trim();
@@ -927,7 +904,6 @@
             await initializeConversation();
         }
 
-        // Initialize conversation
         async function initializeConversation() {
             const initialPrompt = `Business Name: ${sessionData.businessName}
 Tagline: ${sessionData.tagline}
@@ -940,7 +916,6 @@ Hosting Preference: ${sessionData.wantHosting ? 'Wants free lifetime hosting' : 
             await callDanny('START', initialPrompt);
         }
 
-        // Send message
         async function sendMessage() {
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
@@ -953,155 +928,3 @@ Hosting Preference: ${sessionData.wantHosting ? 'Wants free lifetime hosting' : 
             await callDanny('CHAT', message);
             input.disabled = false;
             input.focus();
-        }
-
-        // Call Danny API
-        async function callDanny(type, message) {
-            try {
-                const thinkingIndicator = document.getElementById('ai-thinking');
-                thinkingIndicator.classList.add('active');
-                
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        type,
-                        message,
-                        sessionData
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (!response.ok) throw new Error(data.error || 'Failed to communicate with Danny');
-
-                addMessage('danny', data.response);
-                sessionData.conversationHistory = data.conversationHistory;
-
-                if (data.siteHTML) {
-                    sessionData.generatedSite = data.siteHTML;
-                    sessionData.siteVersion++;
-                    updatePreview(data.siteHTML);
-                }
-
-            } catch (error) {
-                document.getElementById('chat-error').textContent = error.message;
-            } finally {
-                document.getElementById('ai-thinking').classList.remove('active');
-            }
-        }
-
-        // Add message to chat
-        function addMessage(sender, text) {
-            const messagesDiv = document.getElementById('chat-messages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
-            messageDiv.innerHTML = `<strong>${sender === 'danny' ? 'Danny' : 'You'}:</strong>${text.replace(/\n/g, '<br>')}`;
-            messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
-
-        // Update preview
-        function updatePreview(html) {
-            const iframe = document.getElementById('preview-frame');
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-            
-            iframeDoc.open();
-            iframeDoc.write(html);
-            iframeDoc.close();
-
-            iframe.contentWindow.document.addEventListener('contextmenu', e => e.preventDefault());
-        }
-
-        // Open fullscreen
-        function openFullscreen() {
-            if (!sessionData.generatedSite) return;
-            
-            const modal = document.getElementById('fullscreen-modal');
-            const fullscreenFrame = document.getElementById('fullscreen-frame');
-            const iframeDoc = fullscreenFrame.contentDocument || fullscreenFrame.contentWindow.document;
-            
-            iframeDoc.open();
-            iframeDoc.write(sessionData.generatedSite);
-            iframeDoc.close();
-
-            fullscreenFrame.contentWindow.document.addEventListener('contextmenu', e => e.preventDefault());
-
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        // Close fullscreen
-        function closeFullscreen() {
-            const modal = document.getElementById('fullscreen-modal');
-            modal.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        }
-
-        // Close modal on ESC
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeFullscreen();
-            }
-        });
-
-        // Approve design
-        async function approveDesign() {
-            document.getElementById('chat-section').classList.add('hidden');
-            document.getElementById('payment-section').classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Initiate payment
-        async function initiatePayment() {
-            try {
-                document.getElementById('payment-btn').disabled = true;
-                document.getElementById('payment-status').innerHTML = '<p style="color: var(--text-secondary);">Redirecting to secure payment...</p>';
-
-                const response = await fetch('/api/create-checkout', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email: sessionData.email,
-                        businessName: sessionData.businessName,
-                        siteHTML: sessionData.generatedSite,
-                        wantHosting: sessionData.wantHosting
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (!response.ok) throw new Error(data.error || 'Payment initialization failed');
-
-                const stripe = Stripe(data.publishableKey);
-                await stripe.redirectToCheckout({ sessionId: data.sessionId });
-
-            } catch (error) {
-                document.getElementById('payment-status').innerHTML = `<p class="error">${error.message}</p>`;
-                document.getElementById('payment-btn').disabled = false;
-            }
-        }
-
-        // File to base64
-        function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-        }
-
-        // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        });
-    </script>
-</body>
-</html>

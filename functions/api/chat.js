@@ -1,4 +1,4 @@
-// /functions/api/chat.js
+// /functions/api/chat.js - SECURED VERSION
 
 const DANNY_SYSTEM_PROMPT = `You are Danny, an expert AI web builder from DSGN Labs.
 
@@ -82,109 +82,140 @@ Iterate: The user will give you feedback (e.g., "Can you center the logo?"). You
 
 import { getUserFromRequest } from '../lib/auth.js';
 import { saveChatSession } from '../lib/db.js';
+import { validateMessage, errorResponse, successResponse } from '../lib/validation.js';
+import { checkRateLimit, rateLimitResponse, getRateLimitIdentifier } from '../lib/rate-limit.js';
 
 export async function onRequestPost(context) {
-    try {
-        const { request, env } = context;
-        const user = await getUserFromRequest(request, env);
-        const { type, message, sessionData } = await request.json();
-
-        const conversationHistory = sessionData.conversationHistory || [];
-
-        // Build messages for Gemini
-        const messages = [
-            {
-                role: 'user',
-                parts: [{ text: DANNY_SYSTEM_PROMPT }]
-            },
-            {
-                role: 'model',
-                parts: [{ text: 'Understood! I am Danny from DSGN Labs, ready to help build an amazing website!' }]
-            }
-        ];
-
-        // Add conversation history
-        conversationHistory.forEach(msg => {
-            messages.push({
-                role: msg.role,
-                parts: [{ text: msg.text }]
-            });
-        });
-
-        // Add current message
-        messages.push({
-            role: 'user',
-            parts: [{ text: message }]
-        });
-
-        // Call Gemini API
-        const geminiResponse = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${env.GEMINI_API_KEY}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: messages.slice(2), // Skip system prompt injection
-                    systemInstruction: {
-                        parts: [{ text: DANNY_SYSTEM_PROMPT }]
-                    },
-                    generationConfig: {
-                        temperature: 0.7,
-                        maxOutputTokens: 8192
-                    }
-                })
-            }
-        );
-
-        if (!geminiResponse.ok) {
-            const error = await geminiResponse.text();
-            throw new Error(`Gemini API error: ${error}`);
-        }
-
-        const geminiData = await geminiResponse.json();
-        const dannyResponse = geminiData.candidates[0].content.parts[0].text;
-
-        // Extract site code if present
-        let siteHTML = null;
-        const codeMatch = dannyResponse.match(/\[SITE_CODE_START\]([\s\S]*?)\[SITE_CODE_END\]/);
-        if (codeMatch) {
-            siteHTML = codeMatch[1].trim();
-        }
-
-        // Update conversation history
-        conversationHistory.push(
-            { role: 'user', text: message },
-            { role: 'model', text: dannyResponse }
-        );
-
-        // Persist chat session for authenticated users
-        let chatId = sessionData?.chatId;
-        if (user && env.DB) {
-            if (!chatId) {
-                chatId = Math.random().toString(36).slice(2, 10).toUpperCase();
-            }
-            await saveChatSession(env, {
-                id: chatId,
-                userId: user.sub,
-                data: { conversationHistory, lastType: type, lastUpdated: Date.now() }
-            });
-        }
-
-        return new Response(JSON.stringify({
-            response: dannyResponse.replace(/\[SITE_CODE_START\][\s\S]*?\[SITE_CODE_END\]/g, '').trim(),
-            siteHTML,
-            conversationHistory,
-            chatId
-        }), {
-            headers: { 'Content-Type': 'application/json' }
-        });
-
-    } catch (error) {
-        return new Response(JSON.stringify({
-            error: error.message
-        }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' }
-        });
+  try {
+    const { request, env } = context;
+    
+    // Validate HTTP method
+    if (request.method !== 'POST') {
+      return errorResponse('Method not allowed', 405);
     }
+    
+    // Get user (may be null for guests)
+    const user = await getUserFromRequest(request, env);
+    
+    // Rate limiting
+    const rateLimitId = getRateLimitIdentifier(request, user);
+    const rateLimit = await checkRateLimit(env, rateLimitId, 20, 3600000); // 20/hour
+    
+    if (!rateLimit.allowed) {
+      return rateLimitResponse(rateLimit.retryAfter);
+    }
+    
+    // Parse and validate request body
+    let body;
+    try {
+      body = await request.json();
+    } catch (e) {
+      return errorResponse('Invalid JSON');
+    }
+    
+    const { type, message, sessionData } = body;
+    
+    // Validate message
+    const messageValidation = validateMessage(message);
+    if (!messageValidation.valid) {
+      return errorResponse(messageValidation.error);
+    }
+    
+    const conversationHistory = sessionData?.conversationHistory || [];
+    
+    // Build messages for Gemini
+    const messages = [
+      {
+        role: 'user',
+        parts: [{ text: DANNY_SYSTEM_PROMPT }]
+      },
+      {
+        role: 'model',
+        parts: [{ text: 'Understood! I am Danny from DSGN Labs, ready to help build an amazing website!' }]
+      }
+    ];
+    
+    // Add conversation history
+    conversationHistory.forEach(msg => {
+      messages.push({
+        role: msg.role,
+        parts: [{ text: msg.text }]
+      });
+    });
+    
+    // Add current message
+    messages.push({
+      role: 'user',
+      parts: [{ text: messageValidation.value }]
+    });
+    
+    // Call Gemini API
+    const geminiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${env.GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: messages.slice(2),
+          systemInstruction: {
+            parts: [{ text: DANNY_SYSTEM_PROMPT }]
+          },
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 8192
+          }
+        })
+      }
+    );
+    
+    if (!geminiResponse.ok) {
+      const error = await geminiResponse.text();
+      console.error('Gemini API error:', error);
+      return errorResponse('AI service temporarily unavailable', 503);
+    }
+    
+    const geminiData = await geminiResponse.json();
+    const dannyResponse = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+    
+    if (!dannyResponse) {
+      return errorResponse('Invalid AI response', 500);
+    }
+    
+    // Extract site code if present
+    let siteHTML = null;
+    const codeMatch = dannyResponse.match(/\[SITE_CODE_START\]([\s\S]*?)\[SITE_CODE_END\]/);
+    if (codeMatch) {
+      siteHTML = codeMatch[1].trim();
+    }
+    
+    // Update conversation history
+    conversationHistory.push(
+      { role: 'user', text: messageValidation.value },
+      { role: 'model', text: dannyResponse }
+    );
+    
+    // Persist chat session for authenticated users
+    let chatId = sessionData?.chatId;
+    if (user && env.DB) {
+      if (!chatId) {
+        chatId = Math.random().toString(36).slice(2, 10).toUpperCase();
+      }
+      await saveChatSession(env, {
+        id: chatId,
+        userId: user.sub,
+        data: { conversationHistory, lastType: type, lastUpdated: Date.now() }
+      });
+    }
+    
+    return successResponse({
+      response: dannyResponse.replace(/\[SITE_CODE_START\][\s\S]*?\[SITE_CODE_END\]/g, '').trim(),
+      siteHTML,
+      conversationHistory,
+      chatId
+    });
+    
+  } catch (error) {
+    console.error('Chat error:', error);
+    return errorResponse('An unexpected error occurred', 500);
+  }
 }
